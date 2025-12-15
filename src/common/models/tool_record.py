@@ -1,5 +1,5 @@
 
-from typing import Optional
+from typing import Optional, Dict
 
 
 class ToolRecord:
@@ -12,7 +12,7 @@ class ToolRecord:
         mcp_type: str,
         tool_name: str,
         model: str,
-        arguments: str,
+        arguments: Dict,
         call_id: Optional[str] = None,
         call_time: Optional[str] = None,
         finish_time: Optional[str] = None,

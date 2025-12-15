@@ -1,9 +1,11 @@
-from openai import OpenAI
+from openai import AsyncOpenAI
 
-
-def get_openai_client(model_name: str) -> OpenAI:
-    model = OpenAI(
-        api_key='DEEPSEEK_API_KEY',
-        base_url='DEEPSEEK_BASE_URL',
-    )
-    return model
+def get_openai_client(model_name: str):
+    client = None
+    if model_name == "deepseek-chat":
+        client = AsyncOpenAI(
+            api_key='sk-044217e5854b4507895ea787f175df87',
+            base_url='https://api.deepseek.com',
+            timeout=300.0,
+        )
+    return client

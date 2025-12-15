@@ -1,6 +1,6 @@
 import random
 import string
-from src.common.utils import datetime_to_str,get_current_datetime
+from src.common.utils.time_utils import datetime_to_str,get_current_datetime
 
 def generate_unique_id():
     now = get_current_datetime()

@@ -1,53 +1,68 @@
 import asyncio
+import json
+import threading
+import time
+import re
 from typing import List
 from src.common.models import Task, ToolRecord
 from src.common.utils import get_current_datetime, datetime_to_str
 from src.common.utils.model_utils import get_openai_client
 from src.config.settings import MAX_COUNT, MAX_HANDLING_TASKS
+# 引入新添加的 requeue_task
 from src.mcp_server.task_manager import (
     get_pending_task, add_handling_task, remove_handling_task,
-    get_handling_task_count
+    get_handling_task_count, requeue_task
 )
 from src.mcp_server.model_manager import get_model, update_model_state, bind_model_task, unbind_model_task
 from src.common.utils.history_utils import write_task_history
-import re
-
+from src.mcp_server.tool_manager import add_executing_tool, remove_executing_tool
 from src.plugins.tool_call import call_plugin_function
 
 
 async def execute_task_handler() -> None:
     """任务执行处理器（持续监控队列）"""
+    print("任务执行处理器已启动，正在监听队列...")
     while True:
-        # 检查队列和处理中任务数
-        if get_pending_task() and get_handling_task_count() < MAX_HANDLING_TASKS:
+        try:
+            # 1. 检查是否达到最大并发数
+            if get_handling_task_count() >= MAX_HANDLING_TASKS:
+                await asyncio.sleep(1.0)
+                continue
+
+            # 2. 获取任务
             task = get_pending_task()
             if not task:
                 await asyncio.sleep(1.0)
                 continue
 
-            # 检查模型状态
+            # 3. 检查模型状态
             model = get_model(task.model)
             if not model:
-                # 模型未初始化，放回队列?这里可以修改到全局变量吗？
-                from src.mcp_server.task_manager import _task_queue
-                _task_queue.append(task)
-                await asyncio.sleep(1.0)
+                print(f"警告：模型 {task.model} 未初始化，任务 {task.task_name} 重新入队")
+                requeue_task(task)
+                await asyncio.sleep(2.0)  # 稍微等待，避免CPU空转
                 continue
 
             if model.state == "idle":
-                # 异步执行任务
+                # 4. 异步执行任务
                 asyncio.create_task(execute_task(task))
+            else:
+                # 模型忙碌，任务重新入队
+                requeue_task(task)
+                await asyncio.sleep(0.5)
 
-        await asyncio.sleep(1.0)
+        except Exception as e:
+            print(f"Handler Loop 异常: {e}")
+            await asyncio.sleep(1.0)
 
 
 async def execute_task(task: Task) -> None:
     """执行单个任务"""
     add_handling_task(task)
     task.state = "handling"
-    model = get_model(task.model)
-    count = 0
+    print(f">>> 开始执行任务：{task.task_name}")
 
+    count = 0
     try:
         while True:
             count += 1
@@ -58,64 +73,109 @@ async def execute_task(task: Task) -> None:
                 })
                 break
 
-            # 模型进入思考状态
+            # 绑定模型状态
             update_model_state(task.model, "think")
             bind_model_task(task.model, task.task_id, task.task_name)
 
-            # 模型调用
-            response = await model_call(task)
-            update_model_state(task.model, "wait")
+            # --- 模型调用 (关键修改：await) ---
+            try:
+                response = await model_call(task)
 
-            task.add_session_history(response.choices[0].message)
-            reasoning_content = response.choices[0].message.reasoning_content
-            content = response.choices[0].message.content
-            tool_calls = response.choices[0].message.tool_calls
+                if not response:
+                    raise ValueError("模型未返回有效响应")
+                print(response)
+                message = response.choices[0].message
+                content = message.content
+                tool_calls = message.tool_calls
 
+                # 更新状态
+                update_model_state(task.model, "wait")
+
+                # 记录 Assistant 历史
+                task.add_session_history({
+                    'role': 'assistant',
+                    'content': content,
+                    'reasoning_content': getattr(message, 'reasoning_content', None),
+                    'tool_calls': tool_calls,  # 注意：有些序列化可能需要处理对象转dict
+                })
+
+            except Exception as e:
+                print(f"调用模型时出错：{e}")
+                # 出错时释放模型并退出
+                task.add_session_history({"role": "system", "content": f"模型调用异常: {str(e)}"})
+                break
+
+            # --- 处理工具调用 ---
             if tool_calls:
-                pending_tasks: List[asyncio.Task] = []
+                pending_tasks = []
+                # 临时保存记录以便回调后清理
+                current_records = []
+
                 for tool in tool_calls:
-                    name = tool.function.name
-                    pattern = r"^(.*?)__"
-                    mcp_type = re.match(pattern, name).group(1)
-                    pattern = r"^.*?__(.*)$"
-                    func_name = re.match(pattern, name).group(1)
+                    try:
+                        name = tool.function.name
+                        # 健壮的正则匹配
+                        match_mcp = re.match(r"^(.*?)__", name)
+                        match_func = re.match(r"^.*?__(.*)$", name)
 
-                    # 创建工具调用记录
-                    record = ToolRecord(
-                        task_id=task.task_id,
-                        task_name=task.task_name,
-                        call_id=tool.id,
-                        mcp_type=mcp_type,
-                        tool_name=func_name,
-                        model=task.model,
-                        call_time=datetime_to_str(get_current_datetime()),
-                        arguments=tool.arguments,
+                        if not match_mcp or not match_func:
+                            print(f"错误：工具名称格式不正确: {name}")
+                            continue
 
-                    )
-                    # 异步调用工具
-                    pending_tasks.append(asyncio.create_task(call_plugin_function(record)))
-                # 等待所有工具调用完成
+                        mcp_type = match_mcp.group(1)
+                        func_name = match_func.group(1)
+
+                        args = json.loads(tool.function.arguments)
+                        print(f"调用工具: {func_name} 参数: {args}")
+
+                        record = ToolRecord(
+                            task_id=task.task_id,
+                            task_name=task.task_name,
+                            call_id=tool.id,
+                            mcp_type=mcp_type,
+                            tool_name=func_name,
+                            model=task.model,
+                            call_time=datetime_to_str(get_current_datetime()),
+                            state="executing",
+                            arguments=args,
+                        )
+
+                        add_executing_tool(record)
+                        current_records.append(record)
+
+                        # 创建异步任务
+                        pending_tasks.append(asyncio.create_task(call_plugin_function(record)))
+
+                    except Exception as e:
+                        print(f"解析工具参数失败: {e}")
+
                 if pending_tasks:
-                    results = await asyncio.gather(*pending_tasks)
+                    # 等待所有工具并发执行完成
+                    results = await asyncio.gather(*pending_tasks, return_exceptions=True)
 
-                    for res in results:
+                    for i, result in enumerate(results):
+                        record = current_records[i]
+                        remove_executing_tool(record)
+
+                        content_str = str(result)
+                        if isinstance(result, Exception):
+                            content_str = f"Error: {str(result)}"
+
                         task.add_session_history({
                             "role": "tool",
-                            "tool_call_id": res.tool_call_id,
-                            "content": res
+                            "tool_call_id": record.call_id,
+                            "content": content_str
                         })
-                continue
+                continue  # 继续下一轮循环，将工具结果发给模型
             else:
-                # 无工具调用，添加模型回复
-                task.add_session_history({
-                    "role": "assistant",
-                    "content": content
-                })
+                # 无工具调用，任务结束
                 break
 
         # 任务完成
         task.state = "completed"
         task.finish_time = datetime_to_str(get_current_datetime())
+        print(f"<<< 任务完成：{task.task_name}")
+
     finally:
         remove_handling_task(task)
         update_model_state(task.model, "idle")
@@ -123,25 +183,34 @@ async def execute_task(task: Task) -> None:
         write_task_history(task)
 
 
-
 async def model_call(task: Task):
     if task.model == "deepseek-chat":
+        # 获取异步客户端
         client = get_openai_client(model_name=task.model)
-        response = client.chat.completions.create(
+        if not client:
+            raise ValueError(f"无法获取模型客户端: {task.model}")
+
+        # 使用 await
+        response = await client.chat.completions.create(
             model='deepseek-chat',
             messages=task.session_history,
-            tools=task.available_tools,
+            tools=task.get_tool_info(),
             extra_body={"thinking": {"type": "enabled"}}
         )
-
+        print("模型返回成功")
         return response
-    return {}
+    return None
 
 
+def start_execute_handler_thread():
+    """在后台线程中启动 Event Loop"""
 
+    def run_loop():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(execute_task_handler())
+        loop.close()
 
-
-
-def start_execute_handler() -> asyncio.Task:
-    """启动任务处理器"""
-    return asyncio.create_task(execute_task_handler())
+    t = threading.Thread(target=run_loop, daemon=True)
+    t.start()
+    return t

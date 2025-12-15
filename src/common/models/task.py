@@ -84,6 +84,10 @@ class Task:
         #     self.session_history.pop(0)  # 移除最早的记录
         self.session_history.append(record)
 
+    def get_tool_info(self) -> List[Dict]:
+        from src.plugins.plugin_manager import get_plugin_tool_info
+        return get_plugin_tool_info(self.available_tools)
+
     def to_dict(self) -> Dict:
         """
         转换为字典（用于序列化/持久化）

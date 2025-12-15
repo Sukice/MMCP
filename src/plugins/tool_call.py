@@ -2,7 +2,6 @@ import asyncio
 import importlib
 import sys
 from pathlib import Path
-
 from src.common.models.tool_record import ToolRecord
 from src.plugins.plugin_manager import get_plugin_config
 
@@ -13,8 +12,6 @@ async def call_plugin_function(record: ToolRecord):
     """
     mcp_type = record.mcp_type
     func_name = record.tool_name
-
-
 
     plugin_config = get_plugin_config(mcp_type)
     if not plugin_config:
@@ -49,6 +46,6 @@ async def call_plugin_function(record: ToolRecord):
 
     target_func = getattr(plugin_module, func_name)
     if asyncio.iscoroutinefunction(target_func):
-        return await target_func(**kwargs)
+        return await target_func(**record.arguments)
     else:
-        return target_func(**kwargs)
+        return target_func(**record.arguments)

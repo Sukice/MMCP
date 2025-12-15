@@ -1,25 +1,33 @@
 import os
 import yaml
-from typing import Dict, Optional
-
+from typing import Dict, Optional, List
 
 GLOBAL_TOOL_YAML = os.path.join(os.path.dirname(__file__), "tool.yaml")
 PLUGIN_COLLECTION_DIR = os.path.join(os.path.dirname(__file__), "plugin_collection")
+
+CONFIG_DATA = {}
 
 def load_global_tool_yaml() -> Dict:
     """加载全局tool.yaml配置（返回扁平字典，顶层为mcp_type）"""
     try:
         with open(GLOBAL_TOOL_YAML, "r", encoding="utf-8") as f:
             # 安全加载YAML，避免恶意代码执行
-            config_data = yaml.safe_load(f) or {}
+            global CONFIG_DATA
+            CONFIG_DATA = yaml.safe_load(f) or {}
         # 校验加载结果是否为字典
-        if not isinstance(config_data, dict):
-            raise TypeError(f"tool.yaml格式错误，需为字典结构（当前类型：{type(config_data)}）")
-        return config_data
+        if not isinstance(CONFIG_DATA, dict):
+            raise TypeError(f"tool.yaml格式错误，需为字典结构（当前类型：{type(CONFIG_DATA)}）")
+        return CONFIG_DATA
     except yaml.YAMLError as e:
         raise ValueError(f"解析tool.yaml失败：{str(e)}")
     except Exception as e:
         raise RuntimeError(f"加载tool.yaml异常：{str(e)}")
+
+def get_config_data():
+    return CONFIG_DATA
+
+def init_config_data():
+    load_global_tool_yaml()
 
 def get_plugin_config(mcp_type: str) -> Optional[Dict]:
     """
@@ -31,7 +39,7 @@ def get_plugin_config(mcp_type: str) -> Optional[Dict]:
     if not isinstance(mcp_type, str) or not mcp_type.strip():
         raise ValueError("mcp_type必须是非空字符串")
     try:
-        global_config = load_global_tool_yaml()
+        global_config = get_config_data()
         plugin_config = global_config.get(mcp_type)
 
         # 若找到配置，补充校验核心字段（保证配置完整性）
@@ -68,3 +76,25 @@ def get_plugin_config(mcp_type: str) -> Optional[Dict]:
     except Exception as e:
         print(f"加载配置发生错误：{e}")
         return {}
+
+
+def get_plugin_tool_info(tools: List[str]) -> Optional[List[Dict]]:
+    global_config = get_config_data()
+    tool_pool = []
+    for tool in tools:
+        try:
+            mcp_type = tool.split('/')[0]
+            func_name = tool.split('/')[1]
+            # 修正：需要先访问 'functions' 节点
+            if mcp_type in global_config and 'functions' in global_config[mcp_type]:
+                tool_config = global_config[mcp_type]['functions'].get(func_name)
+                if tool_config:
+                    tool_pool.append(tool_config)
+                else:
+                    print(f"Warning: 函数 {func_name} 未在 {mcp_type} 中定义")
+            else:
+                print(f"Warning: 插件类型 {mcp_type} 不存在或无 functions 配置")
+        except Exception as e:
+            print(f"Error getting tool info for {tool}: {e}")
+            continue
+    return tool_pool
