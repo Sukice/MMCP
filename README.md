@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./logo.png" width="500" height="200" alt="MMCP Icon" />
+  <img src="./assets/Logo.png" width="2752" height="350" alt="MMCP Icon" />
 
   # 🔌 MMCP (Multiple-MCP)
 
@@ -7,7 +7,7 @@
 
   [快速开始] • [插件开发] • [贡献代码]
 
-  ---
+
 
   ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python)
   ![FastAPI](https://img.shields.io/badge/Backend-FastAPI-green?style=flat-square&logo=fastapi)
@@ -15,6 +15,9 @@
   ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)
 
 </div>
+
+
+---
 
 ## 📖 简介 (Introduction)
 
@@ -29,6 +32,11 @@
 * **⚡ 极速异步并发**：基于 `asyncio` 构建的高效核心，支持多模型、多任务同时“开工”，拒绝排队等待。
 * **🎨 零门槛 WebUI**：我们为你精心打造了开箱即用的可视化界面。无需查阅文档，点击鼠标即可配置模型、管理插件、监控任务流。
 * **🧠 实时思维可视化**：在 UI 上实时展示模型的思考路径（Reasoning）、工具调用参数及执行结果，让 AI 的“黑盒”变得透明。
+
+<div align="center">
+  <img src="./assets/WebUI.png" width="800" alt="WebUI Dashboard" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+</div>
+
 
 ---
 
@@ -56,6 +64,10 @@ python -m src.user.web.server
 ```
 
 启动成功后，请在浏览器访问：👉 `http://localhost:8000`
+
+<div align="center">
+  <img src="./assets/AddTask.png" width="800" alt="WebUI Dashboard" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+</div>
 
 > **在这里你可以：**
 >
@@ -180,6 +192,11 @@ my_awesome_plugin:  # 插件唯一标识 ID
 ### 📦 如何安装插件？
 
   * **WebUI 用户**：将插件文件夹打包为 `.zip`，在 Web 界面点击上传即可热加载。
+
+<div align="center">
+  <img src="./assets/RegisterPlugin.png" width="800" alt="WebUI Dashboard" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+</div>
+
   * **命令行用户**：将文件夹放入 `src/plugins/plugin_collection/`，然后调用 `register_plugin("插件名")` 即可。
 
 -----
