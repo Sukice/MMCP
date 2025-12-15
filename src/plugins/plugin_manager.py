@@ -98,3 +98,98 @@ def get_plugin_tool_info(tools: List[str]) -> Optional[List[Dict]]:
             print(f"Error getting tool info for {tool}: {e}")
             continue
     return tool_pool
+
+
+def register_plugin(plugin_name: str) -> bool:
+    """
+    注册插件：将 plugin_collection/{plugin_name}/{plugin_name}.yaml 合并到 tool.yaml
+    """
+    print(f"正在尝试注册插件: {plugin_name} ...")
+
+    # 1. 检查插件目录和配置文件是否存在
+    plugin_dir = os.path.join(PLUGIN_COLLECTION_DIR, plugin_name)
+    config_file = os.path.join(plugin_dir, f"{plugin_name}.yaml")
+
+    if not os.path.isdir(plugin_dir):
+        print(f"错误：插件目录不存在 -> {plugin_dir}")
+        return False
+
+    if not os.path.isfile(config_file):
+        print(f"错误：插件配置文件不存在 -> {config_file}")
+        return False
+
+    try:
+        # 2. 读取插件本身的配置
+        with open(config_file, 'r', encoding='utf-8') as f:
+            new_plugin_config = yaml.safe_load(f)
+            if not new_plugin_config:
+                print(f"错误：配置文件 {config_file} 为空")
+                return False
+
+        # 兼容性处理：如果yaml里包含顶层key(plugin_name)，则取其value；否则整个作为value
+        final_config_content = new_plugin_config
+        if isinstance(new_plugin_config, dict) and len(new_plugin_config) == 1 and plugin_name in new_plugin_config:
+            final_config_content = new_plugin_config[plugin_name]
+
+        # 3. 读取全局 tool.yaml
+        current_global_config = {}
+        if os.path.exists(GLOBAL_TOOL_YAML):
+            with open(GLOBAL_TOOL_YAML, 'r', encoding='utf-8') as f:
+                current_global_config = yaml.safe_load(f) or {}
+
+        # 4. 检查是否已存在
+        if plugin_name in current_global_config:
+            print(f"提示：插件 '{plugin_name}' 已存在于配置中，跳过注册")
+            return True
+
+        # 5. 写入配置
+        current_global_config[plugin_name] = final_config_content
+
+        with open(GLOBAL_TOOL_YAML, 'w', encoding='utf-8') as f:
+            # allow_unicode=True 保证中文正常显示
+            yaml.dump(current_global_config, f, allow_unicode=True, sort_keys=False, indent=2)
+
+        # 刷新内存中的配置
+        init_config_data()
+        print(f"成功：插件 '{plugin_name}' 已注册。")
+        return True
+
+    except Exception as e:
+        print(f"注册插件时发生异常：{e}")
+        return False
+
+
+def unregister_plugin(plugin_name: str) -> bool:
+    """
+    注销插件：从 tool.yaml 中移除指定插件
+    """
+    print(f"正在尝试注销插件: {plugin_name} ...")
+
+    if not os.path.exists(GLOBAL_TOOL_YAML):
+        print("错误：全局配置文件 tool.yaml 不存在")
+        return False
+
+    try:
+        # 1. 读取全局 tool.yaml
+        with open(GLOBAL_TOOL_YAML, 'r', encoding='utf-8') as f:
+            current_global_config = yaml.safe_load(f) or {}
+
+        # 2. 检查并删除
+        if plugin_name not in current_global_config:
+            print(f"提示：插件 '{plugin_name}' 不在配置中，无需注销。")
+            return True
+
+        del current_global_config[plugin_name]
+
+        # 3. 回写文件
+        with open(GLOBAL_TOOL_YAML, 'w', encoding='utf-8') as f:
+            yaml.dump(current_global_config, f, allow_unicode=True, sort_keys=False, indent=2)
+
+        # 刷新内存中的配置
+        init_config_data()
+        print(f"成功：插件 '{plugin_name}' 已注销。")
+        return True
+
+    except Exception as e:
+        print(f"注销插件时发生异常：{e}")
+        return False

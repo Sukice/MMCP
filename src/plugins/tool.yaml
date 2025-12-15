@@ -1,38 +1,32 @@
-# 全局插件注册表（自动生成/维护，对齐DeepSeek/OpenAI规范）
-# 结构说明：
-# - 顶层直接是插件（key=插件mcp_type，唯一标识）
-# - 每个插件包含：基础信息 + functions（对齐大模型function定义）
-# - functions内的func_name：关联插件文件中的实际函数名
-
-# 基础工具插件（base_tools）
 base_tools:
-  # 插件基础信息
-  name: "基础工具插件"
-  desc: "提供获取当前时间、查询天气等基础能力"
+  name: 基础工具插件
+  desc: 提供获取当前时间、查询天气等基础能力
   dir_path: plugin_collection/base_tools/
-  # 工具函数列表（对齐DeepSeek/OpenAI function规范）
   functions:
     get_current_time:
       type: function
       function:
-        name: "base_tools__get_current_time"
-        description: "Get the current date (UTC+8), no parameters required"
+        name: base_tools__get_current_time
+        description: Get the current date (UTC+8), no parameters required
         parameters:
-          type: "object"
+          type: object
           properties: {}
           required: []
     get_weather:
       type: function
       function:
-        name: "base_tools__get_weather"
-        description: "Get weather of a location, the user should supply the location and date"
+        name: base_tools__get_weather
+        description: Get weather of a location, the user should supply the location
+          and date
         parameters:
-          type: "object"
+          type: object
           properties:
             location:
-              type: "string"
-              description: "The city name (e.g. 北京, Shanghai)"
+              type: string
+              description: The city name (e.g. 北京, Shanghai)
             date:
-              type: "string"
-              description: "The date in format YYYY-mm-dd (e.g. 2025-12-15)"
-          required: ["location", "date"]
+              type: string
+              description: The date in format YYYY-mm-dd (e.g. 2025-12-15)
+          required:
+          - location
+          - date
