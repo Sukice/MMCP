@@ -9,329 +9,211 @@
     <script src="https://unpkg.com/element-plus"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        :root {
-            --primary-color: #67C23A; /* 自然绿 */
-            --text-main: #303133;
-            --text-secondary: #909399;
-            --bg-color: #f2f3f5;
-            --card-bg: rgba(255, 255, 255, 0.95);
-        }
-
-        body {
-            background-color: var(--bg-color);
-            margin: 0;
-            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
-            color: var(--text-main);
-            -webkit-font-smoothing: antialiased;
-        }
-
-        #app {
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* 顶部导航 */
-        .header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            padding: 0 10px;
-        }
-        .app-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .app-title .dot {
-            width: 8px;
-            height: 8px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--primary-color);
-        }
-
-        /* 卡片通用样式 - 高级感核心 */
-        .dashboard-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: none;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-        }
-        .dashboard-card:hover {
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
-            transform: translateY(-2px);
-        }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #444;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* 状态颜色 */
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .is-idle { background-color: #909399; }
-        .is-think { background-color: #E6A23C; box-shadow: 0 0 6px #E6A23C; animation: pulse 2s infinite; }
-        .is-wait { background-color: #409EFF; }
-        .is-handling { background-color: var(--primary-color); }
-
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-
-        /* 插件上传区域 */
-        .upload-area {
-            border: 2px dashed #dcdfe6;
-            border-radius: 8px;
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-        .upload-area:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        /* 表格微调 */
-        .el-table {
-            background: transparent !important;
-            --el-table-tr-bg-color: transparent !important;
-            --el-table-header-bg-color: #fafafa !important;
-        }
-        .el-table td.el-table__cell, .el-table th.el-table__cell.is-leaf {
-            border-bottom: 1px solid #f5f5f5 !important;
-        }
-
-        /* 详情JSON展示 */
-        .json-pre {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 13px;
-            color: #444;
-            overflow: auto;
-            max-height: 450px;
-            border: 1px solid #eee;
-        }
+        :root { --primary-color: #67C23A; --bg-color: #f2f4f7; --card-bg: #ffffff; --text-main: #2c3e50; }
+        body, html { background-color: var(--bg-color); margin: 0; height: 100%; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; color: var(--text-main); }
+        #app { height: 100vh; display: flex; flex-direction: column; }
+        .header-bar { height: 56px; background: #fff; border-bottom: 1px solid #ebeef5; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.03); z-index: 10; }
+        .app-title { font-weight: 600; font-size: 18px; display: flex; align-items: center; gap: 12px; }
+        .main-container { flex: 1; display: flex; overflow: hidden; padding: 16px; gap: 16px; }
+        .left-panel { width: 300px; display: flex; flex-direction: column; gap: 16px; }
+        .center-panel { flex: 1; background: var(--card-bg); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #ebeef5; }
+        .right-panel { width: 340px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+        .panel-card { background: var(--card-bg); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #ebeef5; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .panel-header { padding: 12px 16px; border-bottom: 1px solid #f0f2f5; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; background: #fbfbfc; }
+        .scrollable-content { flex: 1; overflow-y: auto; padding: 0; }
+        .list-item { padding: 12px 16px; border-bottom: 1px solid #f5f7fa; cursor: pointer; transition: all 0.2s; }
+        .list-item:hover { background-color: #f5f9ff; padding-left: 20px; }
+        .plugin-more-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #909399; transition: all 0.3s; }
+        .plugin-more-btn:hover { background-color: #ecf5ff; color: var(--primary-color); animation: wiggle 0.6s ease-in-out infinite; }
+        @keyframes wiggle { 0%, 100% { transform: rotate(0deg) scale(1.1); } 25% { transform: rotate(-15deg) scale(1.1); } 75% { transform: rotate(15deg) scale(1.1); } }
+        .func-item { background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; }
+        .func-name { font-family: monospace; font-weight: 600; color: #409EFF; font-size: 14px; }
+        .func-desc { font-size: 12px; color: #606266; margin: 4px 0 8px; }
+        .param-tag { font-family: monospace; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-right: 6px; border: 1px solid; transition: all 0.2s; cursor: default; }
+        .param-tag.is-required { background: #fef0f0; border-color: #ffcccc; color: #f56c6c; font-weight: 600; }
+        .param-tag.is-optional { background: #f4f4f5; border-color: #e9e9eb; color: #909399; }
+        .upload-drop-zone { border: 2px dashed #dcdfe6; border-radius: 8px; text-align: center; padding: 40px 0; cursor: pointer; transition: all 0.3s; background-color: #fafafa; }
+        .upload-drop-zone:hover { border-color: var(--primary-color); background-color: #f0f9eb; }
+        .upload-icon { font-size: 48px; color: #909399; margin-bottom: 10px; transition: color 0.3s; }
+        .upload-drop-zone:hover .upload-icon { color: var(--primary-color); }
+        .upload-text { font-size: 14px; color: #606266; }
+        .upload-tips { margin-top: 20px; padding: 15px; background: #fef0f0; border-radius: 6px; color: #f56c6c; font-size: 12px; }
+        .log-container { font-family: "JetBrains Mono", monospace; font-size: 13px; line-height: 1.6; }
+        .log-item { margin-bottom: 12px; padding-left: 14px; border-left: 3px solid #ddd; animation: slideIn 0.3s; }
+        .log-reasoning { border-color: #E6A23C; color: #b7791f; background: #fffdf5; padding: 8px 12px; border-radius: 0 6px 6px 0; }
+        .log-tool-call { border-color: #409EFF; color: #0958d9; }
+        .log-tool-result { border-color: #409EFF; color: #5c6b7f; font-style: italic; background: #f0f5ff; padding: 6px 12px; border-radius: 0 6px 6px 0; display: inline-block;}
+        .log-response { border-left: 4px solid #9c27b0; background: linear-gradient(to right, #fbf5ff, #fff); padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0; color: #2c3e50; font-family: system-ui, sans-serif; }
+        .task-dialog-layout { display: flex; height: 380px; gap: 20px; }
+        .task-form-col { flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 10px; }
+        .task-tool-col { width: 300px; border-left: 1px solid #eee; padding-left: 20px; display: flex; flex-direction: column; }
+        .tool-tree-header { font-weight: 600; font-size: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .tool-tree-container { flex: 1; overflow-y: auto; border: 1px solid #ebeef5; border-radius: 6px; padding: 10px; background: #fdfdfd; }
+        .plugin-node { margin-bottom: 10px; }
+        .plugin-node-header { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; }
+        .plugin-checkbox { font-weight: 600; font-family: monospace; color: #333; }
+        .func-node-list { margin-left: 24px; margin-top: 5px; border-left: 2px solid #f0f0f0; padding-left: 10px; }
+        .func-checkbox { font-size: 13px; color: #606266; margin-bottom: 4px; display: block; font-family: monospace; }
+        .toggle-btn { cursor: pointer; color: #909399; transition: transform 0.2s; font-size: 12px; padding: 2px;}
+        .toggle-btn:hover { color: var(--primary-color); }
+        .toggle-btn.is-open { transform: rotate(180deg); }
+        .el-tabs { flex: 1; display: flex; flex-direction: column; height: 100%; }
+        .el-tabs__content { flex: 1; overflow: hidden; padding: 0 !important; }
+        .el-tabs__header { margin: 0 !important; background: #f5f7fa; border-bottom: 1px solid #e4e7ed; }
+        .el-tab-pane { height: 100%; overflow-y: auto; padding: 24px; background: #fff; }
+        .model-item-wrapper { position: relative; overflow: hidden; border-bottom: 1px solid #f5f7fa; cursor: pointer; background: #fff; }
+        .model-content { padding: 12px 16px; background: #fff; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.5, 1); position: relative; z-index: 2; }
+        .model-content.is-slid { transform: translateX(-60px); }
+        .model-delete-btn { position: absolute; top: 0; right: 0; bottom: 0; width: 60px; background-color: #F56C6C; display: flex; align-items: center; justify-content: center; color: white; z-index: 1; cursor: pointer; transition: background 0.2s; }
+        .model-delete-btn:hover { background-color: #ff4949; }
     </style>
 </head>
 <body>
-    <div id="app">
+    <div id="app" @click="handleGlobalClick">
         <div class="header-bar">
-            <div class="app-title">
-                <div class="dot"></div>
-                MMCP Dashboard
-            </div>
-            <el-tag type="info" effect="plain" round>{{ currentTime }}</el-tag>
+            <div class="app-title"><div style="width:10px; height:10px; background:linear-gradient(135deg, #67C23A, #95d475); border-radius:50%; box-shadow: 0 0 8px rgba(103,194,58,0.4);"></div>MMCP Dashboard</div>
+            <div style="font-size: 13px; color: #8492a6; font-family: monospace;">{{ currentTime }}</div>
         </div>
 
-        <el-row :gutter="20">
-            <el-col :span="15">
-
-                <el-card class="dashboard-card" :body-style="{ padding: '0' }">
-                    <div class="card-header">
-                        <div class="card-title"><el-icon><List /></el-icon> 任务队列 ({{ taskList.length }})</div>
-                        <el-button type="primary" circle size="default" @click="showAddDialog" style="box-shadow: 0 2px 8px rgba(103, 194, 58, 0.3)">
-                            <el-icon><Plus /></el-icon>
-                        </el-button>
-                    </div>
-                    <el-table :data="taskList" style="width: 100%" empty-text="当前无任务">
-                        <el-table-column type="index" label="#" width="50" align="center"></el-table-column>
-                        <el-table-column prop="task_name" label="任务名称" min-width="150">
-                            <template #default="scope">
-                                <span style="font-weight: 500">{{ scope.row.task_name }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="model" label="模型" width="120">
-                            <template #default="scope">
-                                <el-tag size="small" type="info" effect="light">{{ scope.row.model }}</el-tag>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="status_display" label="状态" width="100">
-                            <template #default="scope">
-                                <div style="display: flex; align-items: center;">
-                                    <span class="status-dot" :class="scope.row.status_display === 'Handling' ? 'is-handling' : 'is-wait'"></span>
-                                    <span :style="{color: scope.row.status_display === 'Handling' ? 'var(--primary-color)' : '#909399'}">
-                                        {{ scope.row.status_display }}
-                                    </span>
-                                </div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column width="80" align="center">
-                            <template #default="scope">
-                                <el-button text circle @click="viewTaskDetail(scope.row)">
-                                    <el-icon><More-Filled /></el-icon>
-                                </el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-card>
-
-                <el-card class="dashboard-card" :body-style="{ padding: '0' }">
-                    <div class="card-header">
-                        <div class="card-title"><el-icon><Tools /></el-icon> 运行中工具 ({{ toolList.length }})</div>
-                    </div>
-                    <el-table :data="toolList" style="width: 100%" empty-text="暂无工具运行">
-                        <el-table-column prop="tool_name" label="函数名" min-width="180"></el-table-column>
-                        <el-table-column prop="task_name" label="来源任务" width="150"></el-table-column>
-                        <el-table-column label="参数预览" min-width="200">
-                            <template #default="scope">
-                                <span style="font-family: monospace; color: #666; font-size: 12px;">
-                                    {{ truncate(JSON.stringify(scope.row.arguments), 50) }}
-                                </span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="state" label="状态" width="100">
-                            <template #default="scope">
-                                <el-tag type="success" size="small" effect="dark">{{ scope.row.state }}</el-tag>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-card>
-            </el-col>
-
-            <el-col :span="9">
-
-                <el-card class="dashboard-card" :body-style="{ padding: '0' }">
-                    <div class="card-header">
-                        <div class="card-title"><el-icon><Cpu /></el-icon> 模型状态</div>
-                    </div>
-                    <el-table :data="modelList" style="width: 100%" :show-header="false">
-                        <el-table-column>
-                            <template #default="scope">
-                                <div style="padding: 8px 0;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span style="font-weight: 600;">{{ scope.row.name }}</span>
-                                        <div style="display: flex; align-items: center;">
-                                            <span class="status-dot" :class="'is-' + scope.row.state"></span>
-                                            <span style="font-size: 13px; text-transform: capitalize;">{{ scope.row.state }}</span>
-                                        </div>
-                                    </div>
-                                    <div style="font-size: 12px; color: #999;">
-                                        <span v-if="scope.row.task_name">正在处理: {{ scope.row.task_name }}</span>
-                                        <span v-else>空闲中</span>
-                                    </div>
-                                </div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column width="50" align="right">
-                            <template #default="scope">
-                                <el-popover placement="left" title="模型详情" :width="250" trigger="click">
-                                    <template #reference>
-                                        <el-button text circle icon="InfoFilled"></el-button>
-                                    </template>
-                                    <div style="font-size: 13px; line-height: 1.8;">
-                                        <p><b>ID:</b> {{ scope.row.task_id || 'N/A' }}</p>
-                                        <p><b>Status:</b> {{ scope.row.state }}</p>
-                                        <p><b>Current Task:</b> {{ scope.row.task_name || 'None' }}</p>
-                                    </div>
-                                </el-popover>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-card>
-
-                <el-card class="dashboard-card">
-                    <div class="card-header" style="padding-left: 0; padding-right: 0; padding-top: 0;">
-                        <div class="card-title"><el-icon><Box /></el-icon> 插件管理</div>
-                        <el-button size="small" type="primary" plain @click="fetchPlugins">刷新</el-button>
-                    </div>
-
-                    <div class="upload-area" @click="triggerUpload">
-                        <el-icon style="font-size: 24px; margin-bottom: 8px;"><Upload-Filled /></el-icon>
-                        <div style="font-size: 13px;">点击上传插件包 (.zip)</div>
-                        <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none" accept=".zip">
-                    </div>
-
-                    <div style="margin-top: 15px; max-height: 300px; overflow-y: auto;">
-                        <div v-for="plugin in plugins" :key="plugin.name"
-                             style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5;">
-                            <div>
-                                <div style="font-weight: 500; font-size: 14px;">{{ plugin.name }}</div>
-                                <div style="font-size: 12px; color: #999;">{{ truncate(plugin.desc, 20) }}</div>
-                            </div>
-                            <el-popconfirm title="确定注销此插件?" @confirm="unregisterPlugin(plugin.name)">
-                                <template #reference>
-                                    <el-button type="danger" link size="small">注销</el-button>
-                                </template>
-                            </el-popconfirm>
+        <div class="main-container">
+            <div class="left-panel">
+                <div class="panel-card" style="flex:1;">
+                    <div class="panel-header"><span>任务队列 <el-tag size="small" type="info" round effect="plain">{{ taskList.length }}</el-tag></span><el-button type="primary" link icon="Plus" @click.stop="showAddDialog"></el-button></div>
+                    <div class="scrollable-content">
+                        <div v-for="(task, index) in taskList" :key="task.task_id" class="list-item" @dblclick="openTaskTab(task)">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items: center;"><span style="font-weight:600; font-size: 14px; color: #303133;">#{{index+1}} {{truncate(task.task_name, 12)}}</span><el-tag size="small" :type="task.status_display === 'Handling' ? 'warning' : 'info'" effect="light" round>{{task.status_display}}</el-tag></div>
+                            <div style="font-size:12px; color:#909399; display: flex; align-items: center; gap: 4px;"><el-icon><Cpu /></el-icon> {{task.model}}</div>
                         </div>
                     </div>
-                </el-card>
-
-            </el-col>
-        </el-row>
-
-        <el-dialog v-model="dialogVisible" title="新建任务" width="500px" align-center style="border-radius: 12px;">
-            <el-form :model="newTask" label-position="top">
-                <el-form-item label="任务名称">
-                    <el-input v-model="newTask.name" placeholder="例如：查询明日天气"></el-input>
-                </el-form-item>
-                <el-form-item label="任务内容 (Prompt)">
-                    <el-input type="textarea" v-model="newTask.content" rows="4" placeholder="请详细描述任务需求..."></el-input>
-                </el-form-item>
-                <el-form-item label="启用工具">
-                    <el-select v-model="newTask.tools" multiple placeholder="选择可用工具" style="width: 100%">
-                        <el-option v-for="tool in availableTools" :key="tool" :label="tool" :value="tool"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="指定模型">
-                     <el-select v-model="newTask.model" style="width: 100%">
-                        <el-option v-for="m in modelList" :key="m.name" :label="m.name" :value="m.name"></el-option>
-                     </el-select>
-                </el-form-item>
-            </el-form>
-            <template #footer>
-                <span class="dialog-footer">
-                    <el-button @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="submitTask" :loading="submitting">立即提交</el-button>
-                </span>
-            </template>
-        </el-dialog>
-
-        <el-dialog v-model="detailVisible" title="任务详情" width="60%" align-center style="border-radius: 12px;">
-            <div v-if="currentTask">
-                <div style="margin-bottom: 20px; display: flex; gap: 15px;">
-                    <el-tag>{{ currentTask.model }}</el-tag>
-                    <el-tag type="info">{{ currentTask.create_time }}</el-tag>
-                    <el-tag :type="currentTask.state === 'handling' ? 'warning' : 'info'">{{ currentTask.state }}</el-tag>
-                </div>
-                <h4 style="margin: 10px 0 5px;">任务内容</h4>
-                <div style="background: #f9f9f9; padding: 10px; border-radius: 4px; color: #555; font-size: 14px;">
-                    {{ currentTask.task_content }}
-                </div>
-
-                <h4 style="margin: 20px 0 5px;">会话/执行历史</h4>
-                <div class="json-pre">
-                    {{ JSON.stringify(currentTask.session_history, null, 2) }}
                 </div>
             </div>
+
+            <div class="center-panel">
+                <el-tabs v-model="activeTab" type="card" closable @tab-remove="removeTab" v-if="tabs.length > 0">
+                    <el-tab-pane v-for="item in tabs" :key="item.name" :label="item.title" :name="item.name">
+                        <div class="log-container" :ref="'logBox-' + item.name">
+                            <div v-for="(log, idx) in item.logs" :key="idx">
+                                <div v-if="log.type === 'header'" class="log-item" style="background:#f0f9eb; padding:10px; border-radius:6px; margin-bottom:20px; border-left:4px solid #67C23A;"><div style="white-space: pre-wrap;">{{ log.content }}</div></div>
+                                <div v-if="log.type === 'reasoning'" class="log-item log-reasoning"><div><b>🧠 思考:</b></div>{{ log.content }}</div>
+                                <div v-if="log.type === 'tool_call'" class="log-item log-tool-call"><b>🔨 调用:</b> {{ log.content }}</div>
+                                <div v-if="log.type === 'tool_result'" class="log-item log-tool-result"><b>📥 返回:</b> {{ log.content }}</div>
+                                <div v-if="log.type === 'response'" class="log-item log-response"><div v-html="renderMarkdown(log.content)"></div></div>
+                                <div v-if="log.type === 'error'" class="log-item log-error" style="color:#F56C6C;">❌ {{ log.content }}</div>
+                                <div v-if="log.type === 'footer'" class="log-item" style="border-top:1px dashed #ccc; padding-top:10px; color:#999;"><div style="white-space: pre-wrap;">{{ log.content }}</div></div>
+                            </div>
+                            <div v-if="item.logs.length === 0" style="text-align:center; padding: 40px; color:#c0c4cc;"><el-icon class="is-loading" size="20"><Loading /></el-icon><div style="margin-top: 10px;">等待日志...</div></div>
+                        </div>
+                    </el-tab-pane>
+                </el-tabs>
+                <div v-else style="height: 100%; display: flex; align-items: center; justify-content: center; color: #aeb4c0; flex-direction: column; gap: 16px;"><el-icon size="40" color="#dcdfe6"><Monitor /></el-icon><p style="font-weight: 500;">双击左侧任务以查看实时日志</p></div>
+            </div>
+
+            <div class="right-panel">
+                <div class="panel-card" style="height: 40%;">
+                    <div class="panel-header"><span>模型池</span><el-button type="primary" circle size="small" @click.stop="addModelVisible = true" style="box-shadow: 0 2px 6px rgba(64, 158, 255, 0.3);"><el-icon><Plus /></el-icon></el-button></div>
+                    <div class="scrollable-content">
+                        <div v-for="m in modelList" :key="m.name" class="model-item-wrapper" @click.stop="toggleModelSlide(m.name)">
+                            <div class="model-content" :class="{ 'is-slid': openedModel === m.name }">
+                                <div style="display:flex; justify-content:space-between;"><span style="font-weight: 600;">{{m.name}}</span><el-tag size="small" :type="m.state === 'idle' ? 'info' : 'warning'" effect="dark" round>{{m.state}}</el-tag></div>
+                            </div>
+                            <div class="model-delete-btn" @click.stop="deleteModel(m.name)"><el-icon size="20"><Close /></el-icon></div>
+                        </div>
+                        <div v-if="modelList.length === 0" style="text-align:center; color:#ccc; padding:20px; font-size:12px;">暂无模型，请添加</div>
+                    </div>
+                </div>
+                <div class="panel-card" style="height: 30%;">
+                    <div class="panel-header">调用栈</div>
+                    <div class="scrollable-content">
+                        <div v-for="(t, i) in toolList" :key="i" class="list-item" style="cursor: default;"><div style="color: var(--primary-color); font-family: monospace; font-weight: 600;">{{t.tool_name}}</div><div style="color: #909399; font-size: 12px; margin-top: 4px;">From: {{truncate(t.task_name, 20)}}</div></div>
+                    </div>
+                </div>
+                <div class="panel-card" style="flex:1;">
+                    <div class="panel-header"><span>插件库</span><el-button type="primary" circle size="small" @click.stop="openUploadDialog" style="box-shadow: 0 2px 6px rgba(64, 158, 255, 0.3);"><el-icon><Plus /></el-icon></el-button></div>
+                    <div class="scrollable-content">
+                        <div v-for="p in plugins" :key="p.name" class="list-item" style="display:flex; justify-content:space-between; align-items: center; cursor: default;">
+                            <div style="display: flex; flex-direction: column;"><span style="font-weight: 600; color: #333; font-family: monospace; font-size: 14px;">{{p.name}}</span><span style="font-size: 12px; color: #909399; margin-top: 2px;">{{truncate(p.desc, 15)}}</span></div>
+                            <div class="plugin-more-btn" @click.stop="openPluginDetail(p)"><el-icon><More-Filled /></el-icon></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <el-dialog v-model="dialogVisible" title="新建任务" width="800px" align-center style="border-radius: 12px;" @opened="initToolSelection">
+            <div class="task-dialog-layout">
+                <div class="task-form-col">
+                    <div><div style="margin-bottom:6px; font-weight:500;">任务名称</div><el-input v-model="newTask.name" placeholder="简短描述"></el-input></div>
+                    <div style="flex:1; display:flex; flex-direction:column;"><div style="margin-bottom:6px; font-weight:500;">任务指令</div><el-input type="textarea" v-model="newTask.content" style="flex:1;" :rows="8" resize="none"></el-input></div>
+                    <div><div style="margin-bottom:6px; font-weight:500;">执行模型</div><el-select v-model="newTask.model" style="width:100%" placeholder="请选择模型"><el-option v-for="m in modelList" :key="m.name" :label="m.name" :value="m.name"></el-option></el-select></div>
+                </div>
+                <div class="task-tool-col">
+                    <div class="tool-tree-header"><span>可用工具选择</span><el-tag size="small" type="success" effect="plain">{{ computedSelectedCount }} 项已选</el-tag></div>
+                    <div class="tool-tree-container">
+                        <div v-for="(pVal, pName) in toolSelection" :key="pName" class="plugin-node">
+                            <div class="plugin-node-header">
+                                <el-checkbox v-model="pVal.checked" :indeterminate="pVal.indeterminate" @change="(val) => handlePluginCheck(pName, val)"><span class="plugin-checkbox">{{ pName }}</span></el-checkbox>
+                                <div class="toggle-btn" :class="{'is-open': pVal.expanded}" @click="pVal.expanded = !pVal.expanded"><el-icon><Arrow-Down /></el-icon></div>
+                            </div>
+                            <div class="func-node-list" v-show="pVal.expanded">
+                                <el-checkbox v-for="func in pVal.functions" :key="func.value" v-model="func.checked" class="func-checkbox" @change="handleFuncCheck(pName)">{{ func.name }}</el-checkbox>
+                                <div v-if="!pVal.functions || pVal.functions.length === 0" style="color:#ccc; font-size:12px;">无导出函数</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <template #footer><el-button @click="dialogVisible = false">取消</el-button><el-button type="primary" @click="submitTask">提交执行</el-button></template>
+        </el-dialog>
+
+        <el-dialog v-model="addModelVisible" title="添加新模型" width="450px" align-center style="border-radius: 12px;">
+            <el-form :model="newModel" label-position="top">
+                <el-form-item label="模型名称 (Model Name)" required><el-input v-model="newModel.model_name" placeholder="e.g. gpt-4o"></el-input></el-form-item>
+                <el-form-item label="Base URL" required><el-input v-model="newModel.base_url" placeholder="e.g. https://api.openai.com/v1"></el-input></el-form-item>
+                <el-form-item label="API Key" required><el-input v-model="newModel.api_key" show-password placeholder="sk-..."></el-input></el-form-item>
+            </el-form>
+            <template #footer><el-button @click="addModelVisible = false">取消</el-button><el-button type="primary" @click="submitNewModel">保存模型</el-button></template>
+        </el-dialog>
+
+        <el-dialog v-model="pluginDetailVisible" :title="currentPlugin ? currentPlugin.name + ' 详情' : '插件详情'" width="550px" align-center>
+            <div v-if="currentPlugin" style="max-height: 500px; overflow-y: auto;">
+                <div style="background: #fdf6ec; color: #e6a23c; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px;"><el-icon><Info-Filled /></el-icon> {{ currentPlugin.desc }}</div>
+                <h4 style="margin: 0 0 10px 0; color: #303133;">包含函数</h4>
+                <div v-if="currentPlugin.functions && Object.keys(currentPlugin.functions).length > 0">
+                    <div v-for="(funcConfig, funcKey) in currentPlugin.functions" :key="funcKey" class="func-item">
+                        <div class="func-name">{{ funcKey }}</div>
+                        <div class="func-desc">{{ funcConfig.function?.description || '暂无描述' }}</div>
+                        <div v-if="funcConfig.function?.parameters?.properties">
+                            <span v-for="(propVal, propKey) in funcConfig.function.parameters.properties" :key="propKey" class="param-tag" :class="isParamRequired(funcConfig, propKey) ? 'is-required' : 'is-optional'">
+                                {{ propKey }}<span v-if="isParamRequired(funcConfig, propKey)" style="margin-left:2px;">*</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div v-else style="text-align: center; color: #999; padding: 20px;">该插件未导出任何函数</div>
+                <div style="margin-top: 30px; border-top: 1px dashed #eee; padding-top: 20px;"><el-button type="danger" plain style="width: 100%;" @click="requestUnregister(currentPlugin.name)"><el-icon style="margin-right: 5px;"><Delete /></el-icon> 注销此插件</el-button></div>
+            </div>
+        </el-dialog>
+
+        <el-dialog v-model="deleteDialogVisible" title="危险操作" width="400px" align-center>
+             <div style="display: flex; gap: 15px;"><el-icon color="#F56C6C" size="24"><Warning-Filled /></el-icon><div><div style="font-weight: 600; margin-bottom: 6px;">确定注销 {{ targetPlugin }} ？</div><el-checkbox v-model="deleteSourceChecked" label="同时删除源文件" style="color: #F56C6C;"></el-checkbox></div></div>
+            <template #footer><el-button @click="deleteDialogVisible = false">取消</el-button><el-button type="danger" @click="confirmUnregister" :loading="deleting">确认注销</el-button></template>
+        </el-dialog>
+
+        <el-dialog v-model="uploadDialogVisible" title="安装新插件" width="500px" align-center>
+            <div class="upload-drop-zone" :class="{ 'is-dragging': isDragging }" @click="triggerFileSelect" @dragover.prevent @dragenter.prevent="isDragging = true" @dragleave.prevent="isDragging = false" @drop.prevent="handleDrop">
+                <el-icon class="upload-icon"><Upload-Filled /></el-icon><div class="upload-text">拖拽 .zip 包至此，或 <em>点击上传</em></div>
+            </div>
+            <div class="upload-tips"><div style="font-weight: 600; margin-bottom: 6px; color: #F56C6C;">插件包结构要求：</div><ul><li>必须包含 <code>__init__.py</code></li><li>必须包含同名 <code>.yaml</code></li></ul></div>
+            <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none" accept=".zip">
         </el-dialog>
     </div>
 
     <script>
-        const { createApp, ref, onMounted, computed } = Vue;
-        const { ElMessage, ElNotification } = ElementPlus;
+        const { createApp, ref, onMounted, nextTick, computed } = Vue;
+        const { ElMessage } = ElementPlus;
 
         const app = createApp({
             setup() {
@@ -340,144 +222,190 @@
                 const modelList = ref([]);
                 const toolList = ref([]);
                 const plugins = ref([]);
-                const availableTools = ref([]);
 
                 const dialogVisible = ref(false);
-                const detailVisible = ref(false);
-                const submitting = ref(false);
-                const currentTask = ref(null);
+                const pluginDetailVisible = ref(false);
+                const currentPlugin = ref(null);
+                const deleteDialogVisible = ref(false);
+                const targetPlugin = ref("");
+                const deleteSourceChecked = ref(false);
+                const deleting = ref(false);
                 const fileInput = ref(null);
+                const uploadDialogVisible = ref(false);
+                const isDragging = ref(false);
+                const activeTab = ref(null);
+                const tabs = ref([]);
+                const newTask = ref({ name: "", content: "", tools: [], model: "" }); // [修改] 初始为空
+                const toolSelection = ref({});
+                const addModelVisible = ref(false);
+                const newModel = ref({ model_name: "", base_url: "", api_key: "" });
+                const openedModel = ref(null);
 
-                const newTask = ref({
-                    name: "", content: "",
-                    tools: ["base_tools/get_current_time"],
-                    model: "deepseek-chat"
-                });
+                setInterval(() => { currentTime.value = new Date().toLocaleTimeString(); }, 1000);
 
-                // 更新时间
-                setInterval(() => {
-                    const now = new Date();
-                    currentTime.value = now.toLocaleTimeString();
-                }, 1000);
-
-                // 核心数据轮询
                 const fetchData = async () => {
                     try {
                         const res = await axios.get('/api/dashboard');
                         taskList.value = res.data.tasks;
                         modelList.value = res.data.models;
                         toolList.value = res.data.tools;
-                    } catch (e) { console.error(e); }
+                        tabs.value.forEach(async (tab) => {
+                            try {
+                                const logRes = await axios.get(`/api/logs/${tab.name}`);
+                                if (logRes.data && logRes.data.length > tab.logs.length) {
+                                    tab.logs = logRes.data;
+                                    if(activeTab.value === tab.name) nextTick(() => { const el = document.querySelector('.el-tab-pane[style*="display: block"] .log-container'); if(el) el.scrollTop = el.scrollHeight; });
+                                }
+                            } catch(e) {}
+                        });
+                    } catch (e) {}
                 };
 
-                const fetchToolsAndPlugins = async () => {
-                    try {
-                        const [resTools, resPlugins] = await Promise.all([
-                            axios.get('/api/available_tools'),
-                            axios.get('/api/plugins')
-                        ]);
-                        availableTools.value = resTools.data;
-                        plugins.value = resPlugins.data;
-                    } catch(e) { console.error(e); }
+                const fetchExtras = async () => {
+                    try { const res = await axios.get('/api/plugins'); plugins.value = res.data; } catch(e) {}
                 };
 
-                // --- 任务操作 ---
+                const initToolSelection = () => {
+                    fetchExtras().then(() => {
+                        const defaultSelection = []; // [修改] 默认不选中任何工具
+                        const state = {};
+                        plugins.value.forEach(p => {
+                            const pName = p.name;
+                            const funcsObj = JSON.parse(JSON.stringify(p.functions || {}));
+                            const funcs = Object.keys(funcsObj).map(fName => ({ name: fName, value: `${pName}/${fName}`, checked: true }));
+                            state[pName] = { checked: false, indeterminate: false, expanded: true, functions: funcs };
+                            if(defaultSelection.includes(pName)) { state[pName].checked = true; funcs.forEach(f => f.checked = true); }
+                            else { state[pName].checked = false; funcs.forEach(f => f.checked = false); }
+                        });
+                        toolSelection.value = state;
+                    });
+                };
+
+                const isParamRequired = (funcConfig, key) => {
+                    const req = funcConfig.function?.parameters?.required || [];
+                    return req.includes(key);
+                };
+
+                const handlePluginCheck = (pName, val) => {
+                    const node = toolSelection.value[pName];
+                    node.indeterminate = false;
+                    node.functions.forEach(f => f.checked = val);
+                };
+                const handleFuncCheck = (pName) => {
+                    const node = toolSelection.value[pName];
+                    const total = node.functions.length;
+                    const checkedCount = node.functions.filter(f => f.checked).length;
+                    node.checked = checkedCount === total && total > 0;
+                    node.indeterminate = checkedCount > 0 && checkedCount < total;
+                };
+                const computedSelectedCount = computed(() => {
+                    let count = 0;
+                    Object.values(toolSelection.value).forEach(p => count += p.functions.filter(f => f.checked).length);
+                    return count;
+                });
+
                 const showAddDialog = () => {
-                    fetchToolsAndPlugins(); // 打开时刷新一下工具列表
+                    fetchExtras();
                     dialogVisible.value = true;
+                    // [新增] 每次打开自动选中第一个有效模型
+                    if(modelList.value.length > 0) newTask.value.model = modelList.value[0].name;
+                    else newTask.value.model = "";
                 };
 
                 const submitTask = async () => {
-                    if(!newTask.value.name || !newTask.value.content) return ElMessage.warning("请补全任务信息");
-                    submitting.value = true;
+                    const finalTools = [];
+                    Object.entries(toolSelection.value).forEach(([pName, node]) => {
+                        if (node.checked) finalTools.push(pName);
+                        else node.functions.forEach(f => { if(f.checked) finalTools.push(f.value); });
+                    });
+                    newTask.value.tools = finalTools;
                     try {
-                        await axios.post('/api/tasks', newTask.value);
-                        ElMessage.success("任务已进入队列");
-                        dialogVisible.value = false;
+                        const res = await axios.post('/api/tasks', newTask.value);
+                        ElMessage.success("已提交"); dialogVisible.value = false; fetchData();
+                        openTaskTab({ task_id: res.data.task_id, task_name: newTask.value.name });
+
+                        // [修改] 重置时动态获取第一个模型
+                        const defaultModel = modelList.value.length > 0 ? modelList.value[0].name : "";
+                        newTask.value = { name: "", content: "", tools: [], model: defaultModel };
+                    } catch(e) { ElMessage.error("失败: " + e.message); }
+                };
+
+                const submitNewModel = async () => {
+                    const name = newModel.value.model_name;
+                    if(!name || !newModel.value.base_url || !newModel.value.api_key) { ElMessage.warning("所有字段均为必填项"); return; }
+                    const exists = modelList.value.some(m => m.name === name);
+                    if (exists) { ElMessage.warning(`模型 "${name}" 已存在，无需重复添加`); return; }
+                    try {
+                        await axios.post('/api/models', newModel.value);
+                        ElMessage.success(`模型 ${name} 已添加`);
+                        addModelVisible.value = false;
+                        newModel.value = { model_name: "", base_url: "", api_key: "" };
                         fetchData();
-                        newTask.value = {
-                            name: "", content: "",
-                            tools: ["base_tools/get_current_time"],
-                            model: "deepseek-chat"
-                        };
-                    } catch (e) {
-                        ElMessage.error(e.response?.data?.detail || "提交失败");
-                    } finally {
-                        submitting.value = false;
-                    }
+                    } catch(e) { ElMessage.error("添加失败: " + (e.response?.data?.detail || e.message)); }
                 };
 
-                const viewTaskDetail = (task) => {
-                    currentTask.value = task;
-                    detailVisible.value = true;
+                const toggleModelSlide = (name) => {
+                    if (openedModel.value === name) openedModel.value = null;
+                    else openedModel.value = name;
                 };
-
-                // --- 插件操作 ---
-                const fetchPlugins = () => {
-                    axios.get('/api/plugins').then(res => plugins.value = res.data);
-                };
-
-                const triggerUpload = () => fileInput.value.click();
-
-                const handleFileUpload = async (event) => {
-                    const file = event.target.files[0];
-                    if (!file) return;
-
-                    const formData = new FormData();
-                    formData.append('file', file);
-
+                const handleGlobalClick = () => { if (openedModel.value) openedModel.value = null; };
+                const deleteModel = async (name) => {
                     try {
-                        const res = await axios.post('/api/plugins/upload', formData, {
-                            headers: { 'Content-Type': 'multipart/form-data' }
-                        });
-                        ElNotification({ title: 'Success', message: res.data.message, type: 'success' });
-                        fetchPlugins(); // 刷新列表
-                        fetchToolsAndPlugins(); // 刷新可用工具
-                    } catch (e) {
-                        ElNotification({ title: 'Error', message: e.response?.data?.detail || "上传失败", type: 'error' });
-                    } finally {
-                        event.target.value = ''; // 重置 input
-                    }
+                        await axios.delete(`/api/models/${encodeURIComponent(name)}`);
+                        ElMessage.success(`模型 ${name} 已删除`);
+                        openedModel.value = null; fetchData();
+                    } catch(e) { ElMessage.error("删除失败"); }
                 };
 
-                const unregisterPlugin = async (name) => {
-                    try {
-                        await axios.post('/api/plugins/unregister', { plugin_name: name });
-                        ElMessage.success(`插件 ${name} 已注销`);
-                        fetchPlugins();
-                        fetchToolsAndPlugins();
-                    } catch (e) {
-                        ElMessage.error("注销失败");
-                    }
+                const openUploadDialog = () => { uploadDialogVisible.value = true; };
+                const triggerFileSelect = () => { fileInput.value.click(); };
+                const processUpload = async (file) => {
+                    if (!file.name.endsWith('.zip')) { ElMessage.warning("请上传 .zip 格式文件"); return; }
+                    const fd = new FormData(); fd.append('file', file);
+                    try { await axios.post('/api/plugins/upload', fd); ElMessage.success("安装成功"); uploadDialogVisible.value = false; fetchExtras(); } catch(e) { ElMessage.error("安装失败"); }
+                };
+                const handleDrop = (e) => { isDragging.value = false; const files = e.dataTransfer.files; if (files.length > 0) processUpload(files[0]); };
+                const handleFileUpload = (e) => { const file = e.target.files[0]; if(file) processUpload(file); e.target.value = ''; };
+
+                const openPluginDetail = (p) => {
+                    currentPlugin.value = JSON.parse(JSON.stringify(p));
+                    pluginDetailVisible.value = true;
+                };
+                const requestUnregister = (name) => { pluginDetailVisible.value = false; targetPlugin.value = name; deleteSourceChecked.value = false; deleteDialogVisible.value = true; };
+                const confirmUnregister = async () => {
+                    deleting.value = true;
+                    try { await axios.post('/api/plugins/unregister', { plugin_name: targetPlugin.value, delete_source: deleteSourceChecked.value }); ElMessage.success("已注销"); deleteDialogVisible.value = false; fetchExtras(); }
+                    catch(e) { ElMessage.error("失败"); } finally { deleting.value = false; }
                 };
 
-                // 辅助函数
-                const truncate = (str, len) => {
-                    if (!str) return '';
-                    return str.length > len ? str.substring(0, len) + '...' : str;
+                const openTaskTab = (task) => {
+                    const existing = tabs.value.find(t => t.name === task.task_id);
+                    if(existing) activeTab.value = task.task_id;
+                    else { tabs.value.push({ title: task.task_name, name: task.task_id, logs: [] }); activeTab.value = task.task_id; }
                 };
+                const removeTab = (n) => { tabs.value = tabs.value.filter(t => t.name !== n); if(activeTab.value === n) activeTab.value = tabs.value.length ? tabs.value[0].name : null; };
+                const openTaskByModel = (m) => { if(m.task_id) openTaskTab({task_id: m.task_id, task_name: m.task_name}); };
+                const renderMarkdown = (t) => marked.parse(t);
+                const truncate = (s, l) => s && s.length > l ? s.substring(0,l)+'...' : s;
 
-                onMounted(() => {
-                    fetchData();
-                    fetchToolsAndPlugins();
-                    setInterval(fetchData, 1500); // 1.5秒刷新一次状态
-                });
+                onMounted(() => { fetchData(); fetchExtras(); setInterval(fetchData, 1000); });
 
                 return {
-                    currentTime, taskList, modelList, toolList, plugins, availableTools,
-                    dialogVisible, detailVisible, newTask, currentTask, submitting, fileInput,
-                    showAddDialog, submitTask, viewTaskDetail, truncate,
-                    triggerUpload, handleFileUpload, unregisterPlugin, fetchPlugins
+                    currentTime, taskList, modelList, toolList, plugins,
+                    dialogVisible, newTask, fileInput, activeTab, tabs,
+                    pluginDetailVisible, currentPlugin, deleteDialogVisible, targetPlugin, deleteSourceChecked, deleting,
+                    toolSelection, computedSelectedCount, uploadDialogVisible, isDragging,
+                    openTaskTab, removeTab, renderMarkdown, openTaskByModel, submitTask, showAddDialog, truncate,
+                    openPluginDetail, requestUnregister, confirmUnregister,
+                    handlePluginCheck, handleFuncCheck, initToolSelection,
+                    openUploadDialog, triggerFileSelect, handleDrop, handleFileUpload,
+                    addModelVisible, newModel, submitNewModel, isParamRequired,
+                    openedModel, toggleModelSlide, handleGlobalClick, deleteModel
                 };
             }
         });
-
-        // 注册图标
-        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-            app.component(key, component)
-        }
-        app.use(ElementPlus);
-        app.mount('#app');
+        for (const [key, component] of Object.entries(ElementPlusIconsVue)) app.component(key, component);
+        app.use(ElementPlus); app.mount('#app');
     </script>
 </body>
 </html>

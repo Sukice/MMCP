@@ -23,7 +23,7 @@ async def call_plugin_function(record: ToolRecord):
 
     current_script_dir = Path(__file__).parent.resolve()
     plugin_dir = (current_script_dir / plugin_config["dir_path"]).resolve()
-    print(f"DEBUG: 定位到的插件绝对路径: {plugin_dir}")
+    print(f"| 🔎 Found the called tool in: {plugin_dir}")
 
     plugin_collection_dir = plugin_dir.parent
     if str(plugin_collection_dir) not in sys.path:
