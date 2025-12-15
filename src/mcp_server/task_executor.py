@@ -1,14 +1,11 @@
 import asyncio
 import json
 import threading
-import time
 import re
-from typing import List
 from src.common.models import Task, ToolRecord
 from src.common.utils import get_current_datetime, datetime_to_str
 from src.common.utils.model_utils import get_openai_client
 from src.config.settings import MAX_COUNT, MAX_HANDLING_TASKS
-# 引入新添加的 requeue_task
 from src.mcp_server.task_manager import (
     get_pending_task, add_handling_task, remove_handling_task,
     get_handling_task_count, requeue_task
@@ -31,10 +28,11 @@ async def execute_task_handler() -> None:
 
             # 2. 获取任务
             task = get_pending_task()
+
             if not task:
                 await asyncio.sleep(1.0)
                 continue
-
+            print(f"捕获任务：{task.task_name}")
             # 3. 检查模型状态
             model = get_model(task.model)
             if not model:
@@ -45,11 +43,12 @@ async def execute_task_handler() -> None:
 
             if model.state == "idle":
                 # 4. 异步执行任务
+                update_model_state(task.model, "think")
                 asyncio.create_task(execute_task(task))
             else:
-                # 模型忙碌，任务重新入队
+                print(f"{task.model} 模型忙碌，任务 {task.task_name} 重新入队")
+                await asyncio.sleep(10)
                 requeue_task(task)
-                await asyncio.sleep(0.5)
 
         except Exception as e:
             print(f"Handler Loop 异常: {e}")
@@ -61,7 +60,7 @@ async def execute_task(task: Task) -> None:
     add_handling_task(task)
     task.state = "handling"
     print(f">>> 开始执行任务：{task.task_name}")
-
+    bind_model_task(task.model, task.task_id, task.task_name)
     count = 0
     try:
         while True:
@@ -88,6 +87,19 @@ async def execute_task(task: Task) -> None:
                 content = message.content
                 tool_calls = message.tool_calls
 
+                tool_calls_dict = []
+                if tool_calls:
+                    for tool_call in tool_calls:
+                        # 兼容 Pydantic v2（model_dump）和 v1（dict）
+                        if hasattr(tool_call, 'model_dump'):
+                            tool_dict = tool_call.model_dump()
+                        else:
+                            tool_dict = tool_call.dict()
+                        if 'function' in tool_dict and 'arguments' in tool_dict['function']:
+                            tool_dict['function']['arguments'] = tool_dict['function']['arguments'] or "{}"
+
+                        tool_calls_dict.append(tool_dict)
+
                 # 更新状态
                 update_model_state(task.model, "wait")
 
@@ -96,7 +108,7 @@ async def execute_task(task: Task) -> None:
                     'role': 'assistant',
                     'content': content,
                     'reasoning_content': getattr(message, 'reasoning_content', None),
-                    'tool_calls': tool_calls,  # 注意：有些序列化可能需要处理对象转dict
+                    'tool_calls': tool_calls_dict if tool_calls_dict else None,  # 注意：有些序列化可能需要处理对象转dict
                 })
 
             except Exception as e:
