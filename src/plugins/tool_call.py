@@ -21,11 +21,13 @@ async def call_plugin_function(record: ToolRecord):
     if not func_config:
         raise ValueError(f"插件{mcp_type}无函数配置：{func_name}")
 
+    current_script_dir = Path(__file__).parent.resolve()
+    plugin_dir = (current_script_dir / plugin_config["dir_path"]).resolve()
+    print(f"DEBUG: 定位到的插件绝对路径: {plugin_dir}")
 
-    plugin_dir = Path(plugin_config["dir_path"]).absolute()
-    # 插件目录的父目录（plugin_collection/），加入Python搜索路径
     plugin_collection_dir = plugin_dir.parent
-    sys.path.append(str(plugin_collection_dir))  # 让Python能找到插件包
+    if str(plugin_collection_dir) not in sys.path:
+        sys.path.append(str(plugin_collection_dir))
 
     # 验证插件包（必须有__init__.py）
     init_file = plugin_dir / "__init__.py"
