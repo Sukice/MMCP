@@ -48,6 +48,8 @@ async def call_plugin_function(record: ToolRecord):
 
     target_func = getattr(plugin_module, func_name)
     if asyncio.iscoroutinefunction(target_func):
-        return await target_func(**record.arguments)
+        result = await target_func(**record.arguments)
     else:
-        return target_func(**record.arguments)
+        result = target_func(**record.arguments)
+
+    return result if result else None

@@ -1,14 +1,14 @@
-base_tools:
+mock:
   # 插件基础信息
-  name: "基础工具插件"
-  desc: "提供获取当前时间、查询天气等基础能力"
-  dir_path: plugin_collection/base_tools/
+  name: "模拟函数集"
+  desc: "模拟获取当前时间、查询天气"
+  dir_path: plugin_collection/mock/
   # 工具函数列表（对齐DeepSeek/OpenAI function规范）
   functions:
     get_current_time:
       type: function
       function:
-        name: "base_tools__get_current_time"
+        name: "mock__get_current_time"
         description: "Get the current date (UTC+8), no parameters required"
         parameters:
           type: "object"
@@ -17,7 +17,7 @@ base_tools:
     get_weather:
       type: function
       function:
-        name: "base_tools__get_weather"
+        name: "mock__get_weather"
         description: "Get weather of a location, the user should supply the location and date"
         parameters:
           type: "object"

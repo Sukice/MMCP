@@ -5,3 +5,5 @@ __pycache__/
 # 忽略特定的数据文件
 task_history.json
 models_config.json
+
+uploads/

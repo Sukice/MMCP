@@ -9,18 +9,7 @@ TASK_HISTORY_FILE = "task_history.json"
 MODELS_CONFIG_FILE = "models_config.json"
 
 # 默认配置
-_DEFAULT_CONFIG = {
-    "models": ["gpt-4", "deepseek-chat"],
-    "api_keys": {
-        "gpt-4": "your_api_keys",
-        "deepseek-chat": "your_api_keys",
-    },
-    "base_urls": {
-        "gpt-4": "your_base_url",
-        "deepseek-chat": "your_base_url",
-    }
-}
-
+_DEFAULT_CONFIG = {}
 
 def load_model_config():
     if os.path.exists(MODELS_CONFIG_FILE):
@@ -28,7 +17,7 @@ def load_model_config():
             with open(MODELS_CONFIG_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
-            print(f"加载模型配置失败，使用默认值: {e}")
+            print(f"加载模型配置失败: {e}")
     return _DEFAULT_CONFIG
 
 

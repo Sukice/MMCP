@@ -2,6 +2,7 @@ import os
 import shutil
 import zipfile
 import uvicorn
+import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse
@@ -20,7 +21,12 @@ from src.mcp_server.task_manager import _task_queue, _handling_task_list, init_t
 from src.mcp_server.tool_manager import _executing_tool_list
 from src.common.models import Task
 from src.common.utils.task_logger import TASK_LOG_STORAGE
-from src.config.settings import save_model_config, delete_model_config  # [新增导入]
+from src.config.settings import save_model_config, delete_model_config
+
+# 定义附件上传目录
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "uploads")
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
 
 
 @asynccontextmanager
@@ -43,11 +49,13 @@ app.add_middleware(
 )
 
 
+# [修改] 增加 file_paths 字段
 class CreateTaskRequest(BaseModel):
     name: str
     content: str
     tools: List[str] = None
     model: str = "deepseek-chat"
+    file_paths: List[str] = []  # 新增：附件路径列表
 
 
 class PluginActionRequest(BaseModel):
@@ -89,19 +97,50 @@ def get_task_logs(task_id: str):
     return TASK_LOG_STORAGE.get(task_id, [])
 
 
+# [新增] 附件上传接口
+@app.post("/api/attachments/upload")
+async def upload_attachment(file: UploadFile = File(...)):
+    try:
+        # [关键修复 1]：先检查文件夹在不在，不在就创建！
+        # exist_ok=True 表示如果文件夹已经存在，不要报错，继续往下走
+        if not os.path.exists(UPLOAD_DIR):
+            os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+        # 为了防止重名，加个时间戳前缀
+        safe_filename = f"{int(time.time())}_{file.filename}"
+        file_path = os.path.join(UPLOAD_DIR, safe_filename)
+
+        # [关键修复 2]：写文件
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # 返回绝对路径，供后端 Task 读取
+        return {
+            "status": "success",
+            "file_path": os.path.abspath(file_path),
+            "filename": safe_filename  # 建议返回这个带时间戳的新文件名
+        }
+    except Exception as e:
+        # 打印一下具体的错误路径，方便调试
+        print(f"Error saving file to {os.path.join(UPLOAD_DIR, safe_filename)}")
+        raise HTTPException(status_code=500, detail=f"上传失败: {str(e)}")
+
 @app.post("/api/tasks")
 def create_task(req: CreateTaskRequest):
     try:
-        tools = req.tools if req.tools else ["base_tools"]
+        tools = req.tools if req.tools else None
         new_task = Task(
             task_name=req.name,
             model=req.model,
             task_content=req.content,
-            available_tools=tools
+            available_tools=tools,
+            file_path=req.file_paths if req.file_paths else None # [修改] 传入附件路径
         )
         init_task(new_task)
         return {"status": "success", "task_id": new_task.task_id}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -118,17 +157,12 @@ def api_add_model(req: AddModelRequest):
     return {"status": "success"}
 
 
-# [新增] 删除模型接口
-@app.delete("/api/models/{model_name}")
+@app.delete("/api/models/{model_name:path}")  # <--- 加上 :path
 def api_delete_model(model_name: str):
-    # 1. 先从配置文件删除 (持久化层)
     success = delete_model_config(model_name)
     if not success:
         raise HTTPException(status_code=500, detail="删除配置失败")
-
-    # 2. [新增] 再从内存池删除 (运行时层)
     remove_model(model_name)
-
     return {"status": "success"}
 
 
@@ -159,7 +193,8 @@ def list_plugins():
         })
     return plugins
 
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 @app.post("/api/plugins/upload")
 async def upload_plugin(file: UploadFile = File(...)):
     filename = file.filename

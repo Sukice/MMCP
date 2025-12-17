@@ -11,7 +11,7 @@ from src.mcp_server.task_manager import (
     get_handling_task_count, requeue_task
 )
 from src.mcp_server.model_manager import get_model, update_model_state, bind_model_task, unbind_model_task
-from src.common.utils.history_utils import write_task_history
+from src.common.utils.history_utils import write_task_history, add_model_task_result
 from src.mcp_server.tool_manager import add_executing_tool, remove_executing_tool
 from src.plugins.tool_call import call_plugin_function
 
@@ -164,7 +164,10 @@ async def execute_task(task: Task) -> None:
 
                         add_executing_tool(record)
                         current_records.append(record)
-                        pending_tasks.append(asyncio.create_task(call_plugin_function(record)))
+                        try:
+                            pending_tasks.append(asyncio.create_task(call_plugin_function(record)))
+                        except Exception as e:
+                            pending_tasks.append(f"[System: tool-calling failed : {e}]")
 
                     except Exception as e:
                         logger.log_error(f"准备工具失败: {e}")
@@ -176,18 +179,28 @@ async def execute_task(task: Task) -> None:
                         record = current_records[i]
                         remove_executing_tool(record)
 
-                        content_str = str(result)
+
+                        try:
+                            if isinstance(result, (dict, list)):
+                                content_str = json.dumps(result, ensure_ascii=False)
+                            else:
+                                content_str = str(result)
+                        except Exception as e:
+                            print(f"工具函数返回有误：{e}")
+                            content_str = None
+
                         if isinstance(result, Exception):
                             content_str = f"Error: {str(result)}"
                             logger.log_error(f"{record.tool_name} error: {content_str}")
                         else:
                             # 4. 打印工具返回结果
                             logger.log_tool_result(content_str)
+                        content_str = content_str if content_str else "No return."
 
                         task.add_session_history({
                             "role": "tool",
                             "tool_call_id": record.call_id,
-                            "content": content_str
+                            "content": content_str,
                         })
                 continue
             else:
@@ -201,22 +214,24 @@ async def execute_task(task: Task) -> None:
 
     finally:
         remove_handling_task(task)
+        add_model_task_result(task.task_name,task.session_history[-1]['content'])
         update_model_state(task.model, "idle")
         unbind_model_task(task.model)
         write_task_history(task)
 
 
+
 async def model_call(task: Task):
-    if task.model == "deepseek-chat":
+    if task.model:
         client = get_openai_client(model_name=task.model)
         if not client:
             raise ValueError(f"无法获取模型客户端: {task.model}")
 
         # 使用 await 调用
         response = await client.chat.completions.create(
-            model='deepseek-chat',
+            model=task.model,
             messages=task.session_history,
-            tools=task.get_tool_info(),
+            tools=task.get_tool_info() if task.get_tool_info() else None,
             extra_body={"thinking": {"type": "enabled"}}
         )
         return response

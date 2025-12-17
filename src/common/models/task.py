@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 
 class Task:
@@ -13,7 +13,8 @@ class Task:
         task_name: str,
         model: str,
         task_content: str,
-        available_tools: List,
+        available_tools: List = None,
+        file_path: Union[List,str] = None,
         task_id: Optional[str] = None,
         create_time: Optional[str] = None,
         session_history: Optional[List[Dict]] = None,
@@ -39,8 +40,14 @@ class Task:
             raise ValueError("模型名（model）不能为空")
         if not task_content.strip():
             raise ValueError("任务内容（task_content）不能为空")
-        if not isinstance(available_tools, list):
-            raise TypeError("可用工具（available_tools）必须是列表类型")
+        if available_tools:
+            if not isinstance(available_tools, list):
+                raise TypeError("可用工具（available_tools）必须是列表类型")
+        if file_path:
+            if not isinstance(file_path, list):
+                if not isinstance(file_path, str):
+                    raise TypeError("文件路径信息只能是 str 或 list")
+                file_path = [file_path]
 
         self.task_name = task_name.strip()
         self.model = model.strip()
@@ -51,7 +58,7 @@ class Task:
         self.task_id = task_id
         self.create_time = create_time  # 由MCP服务器调用init_task时赋值
         self.finish_time = finish_time
-
+        self.file_path = file_path
         # 会话历史：处理可变默认值问题（避免多个实例共享同一列表）
         self.session_history = session_history if isinstance(session_history, list) else []
 
@@ -84,9 +91,12 @@ class Task:
         #     self.session_history.pop(0)  # 移除最早的记录
         self.session_history.append(record)
 
-    def get_tool_info(self) -> List[Dict]:
-        from src.plugins.plugin_manager import get_plugin_tool_info
-        return get_plugin_tool_info(self.available_tools)
+    def get_tool_info(self):
+        if self.available_tools:
+            from src.plugins.plugin_manager import get_plugin_tool_info
+            return get_plugin_tool_info(self.available_tools)
+        else:
+            return None
 
     def to_dict(self) -> Dict:
         """

@@ -1,31 +1,94 @@
-base_tools:
-  # 插件基础信息
-  name: "基础工具插件"
-  desc: "提供获取当前时间、查询天气等基础能力"
-  dir_path: plugin_collection/base_tools/
-  # 工具函数列表（对齐DeepSeek/OpenAI function规范）
+ROOT:
+  name: 自调用工具插件
+  desc: 赋予模型调用MMCP的能力
+  dir_path: plugin_collection/ROOT/
+  functions:
+    get_model_list_for_model:
+      type: function
+      function:
+        name: ROOT__get_model_list_for_model
+        description: Get the available models list from the system configuration.
+        parameters:
+          type: object
+          properties: {}
+          required: []
+    add_vlm_task_by_model:
+      type: function
+      function:
+        name: ROOT__add_vlm_task_by_model
+        description: Dispatch a multimodal task (image/file processing) to a specific
+          VLM model and wait for the result.
+        parameters:
+          type: object
+          properties:
+            task_name:
+              type: string
+              description: A unique identifier or name for this sub-task.
+            model:
+              type: string
+              description: The name of the VLM model to use (Get the available models
+                by ROOT__get_model_list_for_model()).
+            task_content:
+              type: string
+              description: The prompt or instruction text for the task.
+            file_path:
+              type: string
+              description: The absolute file path of the image or document to be processed.
+          required:
+          - task_name
+          - model
+          - task_content
+    add_llm_task_by_model:
+      type: function
+      function:
+        name: ROOT__add_llm_task_by_model
+        description: Dispatch a text-only task to a specific LLM model and wait for
+          the result.
+        parameters:
+          type: object
+          properties:
+            task_name:
+              type: string
+              description: A unique identifier or name for this sub-task.
+            model:
+              type: string
+              description: The name of the LLM model to use.
+            task_content:
+              type: string
+              description: The prompt or instruction text for the task.
+          required:
+          - task_name
+          - model
+          - task_content
+mock:
+  name: 模拟函数集
+  desc: 模拟获取当前时间、查询天气
+  dir_path: plugin_collection/mock/
   functions:
     get_current_time:
       type: function
       function:
-        name: "base_tools__get_current_time"
-        description: "Get the current date (UTC+8), no parameters required"
+        name: mock__get_current_time
+        description: Get the current date (UTC+8), no parameters required
         parameters:
-          type: "object"
+          type: object
           properties: {}
           required: []
     get_weather:
       type: function
       function:
-        name: "base_tools__get_weather"
-        description: "Get weather of a location, the user should supply the location and date"
+        name: mock__get_weather
+        description: Get weather of a location, the user should supply the location
+          and date
         parameters:
-          type: "object"
+          type: object
           properties:
             location:
-              type: "string"
-              description: "The city name (e.g. 北京, Shanghai)"
+              type: string
+              description: The city name (e.g. 北京, Shanghai)
             date:
-              type: "string"
-              description: "The date in format YYYY-mm-dd (e.g. 2025-12-15)"
-          required: ["location", "date"]
+              type: string
+              description: The date in format YYYY-mm-dd (e.g. 2025-12-15)
+          required:
+          - location
+          - date

@@ -15,41 +15,66 @@
         :root { --primary-color: #67C23A; --bg-color: #f2f4f7; --card-bg: #ffffff; --text-main: #2c3e50; }
         body, html { background-color: var(--bg-color); margin: 0; height: 100%; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; color: var(--text-main); }
         #app { height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header & Layout */
         .header-bar { height: 56px; background: #fff; border-bottom: 1px solid #ebeef5; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.03); z-index: 10; }
         .app-title { font-weight: 600; font-size: 18px; display: flex; align-items: center; gap: 12px; }
         .main-container { flex: 1; display: flex; overflow: hidden; padding: 16px; gap: 16px; }
         .left-panel { width: 300px; display: flex; flex-direction: column; gap: 16px; }
         .center-panel { flex: 1; background: var(--card-bg); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #ebeef5; }
         .right-panel { width: 340px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+
+        /* Cards & Lists */
         .panel-card { background: var(--card-bg); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #ebeef5; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .panel-header { padding: 12px 16px; border-bottom: 1px solid #f0f2f5; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; background: #fbfbfc; }
         .scrollable-content { flex: 1; overflow-y: auto; padding: 0; }
         .list-item { padding: 12px 16px; border-bottom: 1px solid #f5f7fa; cursor: pointer; transition: all 0.2s; }
         .list-item:hover { background-color: #f5f9ff; padding-left: 20px; }
+
+        /* 插件更多按钮动画 */
         .plugin-more-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #909399; transition: all 0.3s; }
         .plugin-more-btn:hover { background-color: #ecf5ff; color: var(--primary-color); animation: wiggle 0.6s ease-in-out infinite; }
         @keyframes wiggle { 0%, 100% { transform: rotate(0deg) scale(1.1); } 25% { transform: rotate(-15deg) scale(1.1); } 75% { transform: rotate(15deg) scale(1.1); } }
+
+        /* 详情页样式 */
         .func-item { background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; }
         .func-name { font-family: monospace; font-weight: 600; color: #409EFF; font-size: 14px; }
         .func-desc { font-size: 12px; color: #606266; margin: 4px 0 8px; }
         .param-tag { font-family: monospace; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-right: 6px; border: 1px solid; transition: all 0.2s; cursor: default; }
         .param-tag.is-required { background: #fef0f0; border-color: #ffcccc; color: #f56c6c; font-weight: 600; }
         .param-tag.is-optional { background: #f4f4f5; border-color: #e9e9eb; color: #909399; }
+
+        /* 上传区域样式 */
         .upload-drop-zone { border: 2px dashed #dcdfe6; border-radius: 8px; text-align: center; padding: 40px 0; cursor: pointer; transition: all 0.3s; background-color: #fafafa; }
         .upload-drop-zone:hover { border-color: var(--primary-color); background-color: #f0f9eb; }
         .upload-icon { font-size: 48px; color: #909399; margin-bottom: 10px; transition: color 0.3s; }
         .upload-drop-zone:hover .upload-icon { color: var(--primary-color); }
         .upload-text { font-size: 14px; color: #606266; }
         .upload-tips { margin-top: 20px; padding: 15px; background: #fef0f0; border-radius: 6px; color: #f56c6c; font-size: 12px; }
-        .log-container { font-family: "JetBrains Mono", monospace; font-size: 13px; line-height: 1.6; }
-        .log-item { margin-bottom: 12px; padding-left: 14px; border-left: 3px solid #ddd; animation: slideIn 0.3s; }
-        .log-reasoning { border-color: #E6A23C; color: #b7791f; background: #fffdf5; padding: 8px 12px; border-radius: 0 6px 6px 0; }
+
+        /* Logs */
+        .log-container { font-family: "JetBrains Mono", "Segoe UI Emoji", monospace; font-size: 13px; line-height: 1.6; padding: 20px; }
+        .log-item { margin-bottom: 12px; padding-left: 14px; border-left: 3px solid #ddd; animation: slideIn 0.3s; word-wrap: break-word; }
+        .log-reasoning { border-color: #E6A23C; color: #b7791f; background: #fffdf5; padding: 8px 12px; border-radius: 0 6px 6px 0; white-space: pre-wrap; }
         .log-tool-call { border-color: #409EFF; color: #0958d9; }
-        .log-tool-result { border-color: #409EFF; color: #5c6b7f; font-style: italic; background: #f0f5ff; padding: 6px 12px; border-radius: 0 6px 6px 0; display: inline-block;}
-        .log-response { border-left: 4px solid #9c27b0; background: linear-gradient(to right, #fbf5ff, #fff); padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0; color: #2c3e50; font-family: system-ui, sans-serif; }
+        .log-tool-result { border-color: #409EFF; color: #5c6b7f; font-style: italic; background: #f0f5ff; padding: 6px 12px; border-radius: 0 6px 6px 0; display: block; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow-y: auto; }
+
+        /* Markdown 响应区域样式 */
+        .log-response { border-left: 4px solid #9c27b0; background: linear-gradient(to right, #fbf5ff, #fff); padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0; color: #2c3e50; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; overflow-x: auto; }
+        .log-response p { margin-bottom: 10px; line-height: 1.6; }
+        .log-response pre { background: #f6f8fa; padding: 12px; border-radius: 6px; overflow-x: auto; }
+        .log-response code { background: #f0f0f0; padding: 2px 4px; border-radius: 4px; font-family: monospace; color: #d63384; }
+        .log-response img { max-width: 100%; border-radius: 4px; margin: 10px 0; }
+        .log-response table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        .log-response th, .log-response td { border: 1px solid #dfe2e5; padding: 6px 13px; }
+        .log-response tr:nth-child(2n) { background-color: #f6f8fa; }
+
+        /* Task Dialog Layout */
         .task-dialog-layout { display: flex; height: 380px; gap: 20px; }
         .task-form-col { flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 10px; }
         .task-tool-col { width: 300px; border-left: 1px solid #eee; padding-left: 20px; display: flex; flex-direction: column; }
+
+        /* Tool Tree */
         .tool-tree-header { font-weight: 600; font-size: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .tool-tree-container { flex: 1; overflow-y: auto; border: 1px solid #ebeef5; border-radius: 6px; padding: 10px; background: #fdfdfd; }
         .plugin-node { margin-bottom: 10px; }
@@ -60,15 +85,31 @@
         .toggle-btn { cursor: pointer; color: #909399; transition: transform 0.2s; font-size: 12px; padding: 2px;}
         .toggle-btn:hover { color: var(--primary-color); }
         .toggle-btn.is-open { transform: rotate(180deg); }
+
+        /* Tabs */
         .el-tabs { flex: 1; display: flex; flex-direction: column; height: 100%; }
         .el-tabs__content { flex: 1; overflow: hidden; padding: 0 !important; }
         .el-tabs__header { margin: 0 !important; background: #f5f7fa; border-bottom: 1px solid #e4e7ed; }
         .el-tab-pane { height: 100%; overflow-y: auto; padding: 24px; background: #fff; }
+
+        /* Model List Item */
         .model-item-wrapper { position: relative; overflow: hidden; border-bottom: 1px solid #f5f7fa; cursor: pointer; background: #fff; }
         .model-content { padding: 12px 16px; background: #fff; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.5, 1); position: relative; z-index: 2; }
         .model-content.is-slid { transform: translateX(-60px); }
         .model-delete-btn { position: absolute; top: 0; right: 0; bottom: 0; width: 60px; background-color: #F56C6C; display: flex; align-items: center; justify-content: center; color: white; z-index: 1; cursor: pointer; transition: background 0.2s; }
         .model-delete-btn:hover { background-color: #ff4949; }
+
+        /* Attachments */
+        .attachment-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .attachment-tag { display: flex; align-items: center; background: #f0f9eb; color: #67C23A; border: 1px solid #e1f3d8; border-radius: 16px; padding: 4px 10px; font-size: 12px; cursor: default; transition: all 0.2s; }
+        .attachment-tag:hover { background-color: #e1f3d8; }
+        .attachment-tag .el-icon { margin-right: 4px; }
+        .attachment-remove { margin-left: 6px; cursor: pointer; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .attachment-remove:hover { background-color: rgba(0,0,0,0.1); color: #F56C6C; }
+
+        .upload-trigger-btn { cursor: pointer; color: #909399; transition: color 0.2s; margin-right: 10px; display: flex; align-items: center; }
+        .upload-trigger-btn:hover { color: var(--primary-color); }
+        .upload-trigger-btn.is-disabled { color: #c0c4cc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -99,7 +140,7 @@
                                 <div v-if="log.type === 'header'" class="log-item" style="background:#f0f9eb; padding:10px; border-radius:6px; margin-bottom:20px; border-left:4px solid #67C23A;"><div style="white-space: pre-wrap;">{{ log.content }}</div></div>
                                 <div v-if="log.type === 'reasoning'" class="log-item log-reasoning"><div><b>🧠 思考:</b></div>{{ log.content }}</div>
                                 <div v-if="log.type === 'tool_call'" class="log-item log-tool-call"><b>🔨 调用:</b> {{ log.content }}</div>
-                                <div v-if="log.type === 'tool_result'" class="log-item log-tool-result"><b>📥 返回:</b> {{ log.content }}</div>
+                                <div v-if="log.type === 'tool_result'" class="log-item log-tool-result"><b>📥 返回:</b> <div style="margin-top:4px;">{{ log.content }}</div></div>
                                 <div v-if="log.type === 'response'" class="log-item log-response"><div v-html="renderMarkdown(log.content)"></div></div>
                                 <div v-if="log.type === 'error'" class="log-item log-error" style="color:#F56C6C;">❌ {{ log.content }}</div>
                                 <div v-if="log.type === 'footer'" class="log-item" style="border-top:1px dashed #ccc; padding-top:10px; color:#999;"><div style="white-space: pre-wrap;">{{ log.content }}</div></div>
@@ -142,30 +183,65 @@
             </div>
         </div>
 
-        <el-dialog v-model="dialogVisible" title="新建任务" width="800px" align-center style="border-radius: 12px;" @opened="initToolSelection">
+        <el-dialog v-model="dialogVisible" title="新建任务" width="800px" align-center style="border-radius: 12px;" @opened="initToolSelection" :close-on-click-modal="!isUploading">
             <div class="task-dialog-layout">
                 <div class="task-form-col">
-                    <div><div style="margin-bottom:6px; font-weight:500;">任务名称</div><el-input v-model="newTask.name" placeholder="简短描述"></el-input></div>
-                    <div style="flex:1; display:flex; flex-direction:column;"><div style="margin-bottom:6px; font-weight:500;">任务指令</div><el-input type="textarea" v-model="newTask.content" style="flex:1;" :rows="8" resize="none"></el-input></div>
-                    <div><div style="margin-bottom:6px; font-weight:500;">执行模型</div><el-select v-model="newTask.model" style="width:100%" placeholder="请选择模型"><el-option v-for="m in modelList" :key="m.name" :label="m.name" :value="m.name"></el-option></el-select></div>
+                    <div><div style="margin-bottom:6px; font-weight:500;">任务名称</div><el-input v-model="newTask.name" placeholder="简短描述" :disabled="isUploading"></el-input></div>
+
+                    <div style="flex:1; display:flex; flex-direction:column;">
+                        <div style="margin-bottom:6px; font-weight:500; display:flex; justify-content:space-between; align-items:center;">
+                            <span>任务指令</span>
+                            <el-tooltip content="添加附件 (支持图片、PDF、普通文本，最大10MB)" placement="top">
+                                <div class="upload-trigger-btn" :class="{ 'is-disabled': isUploading }" @click="triggerAttachmentUpload">
+                                    <el-icon v-if="isUploading" class="is-loading" size="18"><Loading /></el-icon>
+                                    <el-icon v-else size="18"><Paperclip /></el-icon>
+                                </div>
+                            </el-tooltip>
+                        </div>
+                        <el-input type="textarea" v-model="newTask.content" style="flex:1;" :rows="8" resize="none" placeholder="在这里输入指令..." :disabled="isUploading"></el-input>
+
+                        <div class="attachment-list" v-if="attachmentList.length > 0">
+                            <div v-for="(file, index) in attachmentList" :key="index" class="attachment-tag">
+                                <el-icon><Document /></el-icon>
+                                <span>{{ truncate(file.name, 20) }}</span>
+                                <span class="attachment-remove" @click="removeAttachment(index)">
+                                    <el-icon size="10"><Close /></el-icon>
+                                </span>
+                            </div>
+                        </div>
+                        <input
+                            type="file"
+                            ref="attachmentInput"
+                            @change="handleAttachmentUpload"
+                            style="display: none"
+                            accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff,.pdf,.mp4,.mkv,.mov,.avi,.webm,.mp3,.wav,.aac,.flac,.m4a,.ogg"
+                        >
+                    </div>
+
+                    <div><div style="margin-bottom:6px; font-weight:500;">执行模型</div><el-select v-model="newTask.model" style="width:100%" placeholder="请选择模型" :disabled="isUploading"><el-option v-for="m in modelList" :key="m.name" :label="m.name" :value="m.name"></el-option></el-select></div>
                 </div>
                 <div class="task-tool-col">
                     <div class="tool-tree-header"><span>可用工具选择</span><el-tag size="small" type="success" effect="plain">{{ computedSelectedCount }} 项已选</el-tag></div>
                     <div class="tool-tree-container">
                         <div v-for="(pVal, pName) in toolSelection" :key="pName" class="plugin-node">
                             <div class="plugin-node-header">
-                                <el-checkbox v-model="pVal.checked" :indeterminate="pVal.indeterminate" @change="(val) => handlePluginCheck(pName, val)"><span class="plugin-checkbox">{{ pName }}</span></el-checkbox>
+                                <el-checkbox v-model="pVal.checked" :indeterminate="pVal.indeterminate" @change="(val) => handlePluginCheck(pName, val)" :disabled="isUploading"><span class="plugin-checkbox">{{ pName }}</span></el-checkbox>
                                 <div class="toggle-btn" :class="{'is-open': pVal.expanded}" @click="pVal.expanded = !pVal.expanded"><el-icon><Arrow-Down /></el-icon></div>
                             </div>
                             <div class="func-node-list" v-show="pVal.expanded">
-                                <el-checkbox v-for="func in pVal.functions" :key="func.value" v-model="func.checked" class="func-checkbox" @change="handleFuncCheck(pName)">{{ func.name }}</el-checkbox>
+                                <el-checkbox v-for="func in pVal.functions" :key="func.value" v-model="func.checked" class="func-checkbox" @change="handleFuncCheck(pName)" :disabled="isUploading">{{ func.name }}</el-checkbox>
                                 <div v-if="!pVal.functions || pVal.functions.length === 0" style="color:#ccc; font-size:12px;">无导出函数</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <template #footer><el-button @click="dialogVisible = false">取消</el-button><el-button type="primary" @click="submitTask">提交执行</el-button></template>
+            <template #footer>
+                <el-button @click="dialogVisible = false" :disabled="isUploading">取消</el-button>
+                <el-button type="primary" @click="submitTask" :loading="isUploading" :disabled="isUploading">
+                    {{ isUploading ? '上传附件中...' : '提交执行' }}
+                </el-button>
+            </template>
         </el-dialog>
 
         <el-dialog v-model="addModelVisible" title="添加新模型" width="450px" align-center style="border-radius: 12px;">
@@ -235,11 +311,17 @@
                 const isDragging = ref(false);
                 const activeTab = ref(null);
                 const tabs = ref([]);
-                const newTask = ref({ name: "", content: "", tools: [], model: "" }); // [修改] 初始为空
+
+                const newTask = ref({ name: "", content: "", tools: [], model: "", file_paths: [] });
                 const toolSelection = ref({});
                 const addModelVisible = ref(false);
                 const newModel = ref({ model_name: "", base_url: "", api_key: "" });
                 const openedModel = ref(null);
+
+                const attachmentList = ref([]);
+                const attachmentInput = ref(null);
+                const isUploading = ref(false);
+                const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
                 setInterval(() => { currentTime.value = new Date().toLocaleTimeString(); }, 1000);
 
@@ -267,7 +349,7 @@
 
                 const initToolSelection = () => {
                     fetchExtras().then(() => {
-                        const defaultSelection = []; // [修改] 默认不选中任何工具
+                        const defaultSelection = [];
                         const state = {};
                         plugins.value.forEach(p => {
                             const pName = p.name;
@@ -281,111 +363,96 @@
                     });
                 };
 
-                const isParamRequired = (funcConfig, key) => {
-                    const req = funcConfig.function?.parameters?.required || [];
-                    return req.includes(key);
+                const renderMarkdown = (t) => {
+                    if (!t) return '';
+                    return marked.parse(t, { breaks: true, gfm: true });
                 };
 
-                const handlePluginCheck = (pName, val) => {
-                    const node = toolSelection.value[pName];
-                    node.indeterminate = false;
-                    node.functions.forEach(f => f.checked = val);
-                };
-                const handleFuncCheck = (pName) => {
-                    const node = toolSelection.value[pName];
-                    const total = node.functions.length;
-                    const checkedCount = node.functions.filter(f => f.checked).length;
-                    node.checked = checkedCount === total && total > 0;
-                    node.indeterminate = checkedCount > 0 && checkedCount < total;
-                };
-                const computedSelectedCount = computed(() => {
-                    let count = 0;
-                    Object.values(toolSelection.value).forEach(p => count += p.functions.filter(f => f.checked).length);
-                    return count;
-                });
+                const isParamRequired = (funcConfig, key) => { const req = funcConfig.function?.parameters?.required || []; return req.includes(key); };
+                const handlePluginCheck = (pName, val) => { const node = toolSelection.value[pName]; node.indeterminate = false; node.functions.forEach(f => f.checked = val); };
+                const handleFuncCheck = (pName) => { const node = toolSelection.value[pName]; const total = node.functions.length; const checkedCount = node.functions.filter(f => f.checked).length; node.checked = checkedCount === total && total > 0; node.indeterminate = checkedCount > 0 && checkedCount < total; };
+                const computedSelectedCount = computed(() => { let count = 0; Object.values(toolSelection.value).forEach(p => count += p.functions.filter(f => f.checked).length); return count; });
 
-                const showAddDialog = () => {
-                    fetchExtras();
-                    dialogVisible.value = true;
-                    // [新增] 每次打开自动选中第一个有效模型
-                    if(modelList.value.length > 0) newTask.value.model = modelList.value[0].name;
-                    else newTask.value.model = "";
+                const showAddDialog = () => { fetchExtras(); dialogVisible.value = true; if(modelList.value.length > 0) newTask.value.model = modelList.value[0].name; else newTask.value.model = ""; attachmentList.value = []; };
+
+                const triggerAttachmentUpload = () => {
+                    if (isUploading.value) return;
+                    attachmentInput.value.click();
                 };
+
+                const handleAttachmentUpload = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    if (file.size > MAX_FILE_SIZE) {
+                        ElMessage.warning(`文件大小不能超过 ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+                        e.target.value = '';
+                        return;
+                    }
+
+                    isUploading.value = true;
+                    const fd = new FormData();
+                    fd.append('file', file);
+
+                    try {
+                        const res = await axios.post('/api/attachments/upload', fd);
+                        if (res.data.status === 'success') {
+                            attachmentList.value.push({
+                                name: res.data.filename,
+                                path: res.data.file_path
+                            });
+                            ElMessage.success("附件上传成功");
+                        }
+                    } catch (error) {
+                        ElMessage.error("附件上传失败: " + (error.response?.data?.detail || "网络错误"));
+                    } finally {
+                        isUploading.value = false;
+                        e.target.value = '';
+                    }
+                };
+
+                const removeAttachment = (index) => { attachmentList.value.splice(index, 1); };
 
                 const submitTask = async () => {
+                    if (isUploading.value) {
+                        ElMessage.warning("请等待附件上传完成");
+                        return;
+                    }
+
                     const finalTools = [];
-                    Object.entries(toolSelection.value).forEach(([pName, node]) => {
-                        if (node.checked) finalTools.push(pName);
-                        else node.functions.forEach(f => { if(f.checked) finalTools.push(f.value); });
-                    });
+                    Object.entries(toolSelection.value).forEach(([pName, node]) => { if (node.checked) finalTools.push(pName); else node.functions.forEach(f => { if(f.checked) finalTools.push(f.value); }); });
                     newTask.value.tools = finalTools;
+                    newTask.value.file_paths = attachmentList.value.map(item => item.path);
+
                     try {
+                        // [关键修复] 添加 const res = ...
                         const res = await axios.post('/api/tasks', newTask.value);
-                        ElMessage.success("已提交"); dialogVisible.value = false; fetchData();
+                        ElMessage.success("已提交");
+                        dialogVisible.value = false;
+                        fetchData();
                         openTaskTab({ task_id: res.data.task_id, task_name: newTask.value.name });
 
-                        // [修改] 重置时动态获取第一个模型
                         const defaultModel = modelList.value.length > 0 ? modelList.value[0].name : "";
-                        newTask.value = { name: "", content: "", tools: [], model: defaultModel };
+                        newTask.value = { name: "", content: "", tools: [], model: defaultModel, file_paths: [] };
+                        attachmentList.value = [];
                     } catch(e) { ElMessage.error("失败: " + e.message); }
                 };
 
-                const submitNewModel = async () => {
-                    const name = newModel.value.model_name;
-                    if(!name || !newModel.value.base_url || !newModel.value.api_key) { ElMessage.warning("所有字段均为必填项"); return; }
-                    const exists = modelList.value.some(m => m.name === name);
-                    if (exists) { ElMessage.warning(`模型 "${name}" 已存在，无需重复添加`); return; }
-                    try {
-                        await axios.post('/api/models', newModel.value);
-                        ElMessage.success(`模型 ${name} 已添加`);
-                        addModelVisible.value = false;
-                        newModel.value = { model_name: "", base_url: "", api_key: "" };
-                        fetchData();
-                    } catch(e) { ElMessage.error("添加失败: " + (e.response?.data?.detail || e.message)); }
-                };
-
-                const toggleModelSlide = (name) => {
-                    if (openedModel.value === name) openedModel.value = null;
-                    else openedModel.value = name;
-                };
+                const submitNewModel = async () => { const name = newModel.value.model_name; if(!name || !newModel.value.base_url || !newModel.value.api_key) { ElMessage.warning("所有字段均为必填项"); return; } const exists = modelList.value.some(m => m.name === name); if (exists) { ElMessage.warning(`模型 "${name}" 已存在，无需重复添加`); return; } try { await axios.post('/api/models', newModel.value); ElMessage.success(`模型 ${name} 已添加`); addModelVisible.value = false; newModel.value = { model_name: "", base_url: "", api_key: "" }; fetchData(); } catch(e) { ElMessage.error("添加失败: " + (e.response?.data?.detail || e.message)); } };
+                const toggleModelSlide = (name) => { if (openedModel.value === name) openedModel.value = null; else openedModel.value = name; };
                 const handleGlobalClick = () => { if (openedModel.value) openedModel.value = null; };
-                const deleteModel = async (name) => {
-                    try {
-                        await axios.delete(`/api/models/${encodeURIComponent(name)}`);
-                        ElMessage.success(`模型 ${name} 已删除`);
-                        openedModel.value = null; fetchData();
-                    } catch(e) { ElMessage.error("删除失败"); }
-                };
-
+                const deleteModel = async (name) => { try { await axios.delete(`/api/models/${encodeURIComponent(name)}`); ElMessage.success(`模型 ${name} 已删除`); openedModel.value = null; fetchData(); } catch(e) { ElMessage.error("删除失败"); } };
                 const openUploadDialog = () => { uploadDialogVisible.value = true; };
                 const triggerFileSelect = () => { fileInput.value.click(); };
-                const processUpload = async (file) => {
-                    if (!file.name.endsWith('.zip')) { ElMessage.warning("请上传 .zip 格式文件"); return; }
-                    const fd = new FormData(); fd.append('file', file);
-                    try { await axios.post('/api/plugins/upload', fd); ElMessage.success("安装成功"); uploadDialogVisible.value = false; fetchExtras(); } catch(e) { ElMessage.error("安装失败"); }
-                };
+                const processUpload = async (file) => { if (!file.name.endsWith('.zip')) { ElMessage.warning("请上传 .zip 格式文件"); return; } const fd = new FormData(); fd.append('file', file); try { await axios.post('/api/plugins/upload', fd); ElMessage.success("安装成功"); uploadDialogVisible.value = false; fetchExtras(); } catch(e) { ElMessage.error("安装失败"); } };
                 const handleDrop = (e) => { isDragging.value = false; const files = e.dataTransfer.files; if (files.length > 0) processUpload(files[0]); };
                 const handleFileUpload = (e) => { const file = e.target.files[0]; if(file) processUpload(file); e.target.value = ''; };
-
-                const openPluginDetail = (p) => {
-                    currentPlugin.value = JSON.parse(JSON.stringify(p));
-                    pluginDetailVisible.value = true;
-                };
+                const openPluginDetail = (p) => { currentPlugin.value = JSON.parse(JSON.stringify(p)); pluginDetailVisible.value = true; };
                 const requestUnregister = (name) => { pluginDetailVisible.value = false; targetPlugin.value = name; deleteSourceChecked.value = false; deleteDialogVisible.value = true; };
-                const confirmUnregister = async () => {
-                    deleting.value = true;
-                    try { await axios.post('/api/plugins/unregister', { plugin_name: targetPlugin.value, delete_source: deleteSourceChecked.value }); ElMessage.success("已注销"); deleteDialogVisible.value = false; fetchExtras(); }
-                    catch(e) { ElMessage.error("失败"); } finally { deleting.value = false; }
-                };
-
-                const openTaskTab = (task) => {
-                    const existing = tabs.value.find(t => t.name === task.task_id);
-                    if(existing) activeTab.value = task.task_id;
-                    else { tabs.value.push({ title: task.task_name, name: task.task_id, logs: [] }); activeTab.value = task.task_id; }
-                };
+                const confirmUnregister = async () => { deleting.value = true; try { await axios.post('/api/plugins/unregister', { plugin_name: targetPlugin.value, delete_source: deleteSourceChecked.value }); ElMessage.success("已注销"); deleteDialogVisible.value = false; fetchExtras(); } catch(e) { ElMessage.error("失败"); } finally { deleting.value = false; } };
+                const openTaskTab = (task) => { const existing = tabs.value.find(t => t.name === task.task_id); if(existing) activeTab.value = task.task_id; else { tabs.value.push({ title: task.task_name, name: task.task_id, logs: [] }); activeTab.value = task.task_id; } };
                 const removeTab = (n) => { tabs.value = tabs.value.filter(t => t.name !== n); if(activeTab.value === n) activeTab.value = tabs.value.length ? tabs.value[0].name : null; };
                 const openTaskByModel = (m) => { if(m.task_id) openTaskTab({task_id: m.task_id, task_name: m.task_name}); };
-                const renderMarkdown = (t) => marked.parse(t);
                 const truncate = (s, l) => s && s.length > l ? s.substring(0,l)+'...' : s;
 
                 onMounted(() => { fetchData(); fetchExtras(); setInterval(fetchData, 1000); });
@@ -400,7 +467,8 @@
                     handlePluginCheck, handleFuncCheck, initToolSelection,
                     openUploadDialog, triggerFileSelect, handleDrop, handleFileUpload,
                     addModelVisible, newModel, submitNewModel, isParamRequired,
-                    openedModel, toggleModelSlide, handleGlobalClick, deleteModel
+                    openedModel, toggleModelSlide, handleGlobalClick, deleteModel,
+                    attachmentInput, attachmentList, triggerAttachmentUpload, handleAttachmentUpload, removeAttachment, isUploading
                 };
             }
         });

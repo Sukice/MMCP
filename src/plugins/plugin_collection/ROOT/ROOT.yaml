@@ -1,0 +1,64 @@
+ROOT:
+  # 插件基础信息
+  name: "自调用工具插件"
+  desc: "赋予模型调用MMCP的能力"
+  dir_path: plugin_collection/ROOT/
+  # 工具函数列表（对齐DeepSeek/OpenAI function规范）
+  functions:
+    get_model_list_for_model:
+      type: function
+      function:
+        name: "ROOT__get_model_list_for_model"
+        description: "Get the available models list from the system configuration."
+        parameters:
+          type: "object"
+          properties: {}
+          required: []
+
+    add_vlm_task_by_model:
+      type: function
+      function:
+        name: "ROOT__add_vlm_task_by_model"
+        description: "Dispatch a multimodal task (image/file processing) to a specific VLM model and wait for the result."
+        parameters:
+          type: "object"
+          properties:
+            task_name:
+              type: "string"
+              description: "A unique identifier or name for this sub-task."
+            model:
+              type: "string"
+              description: "The name of the VLM model to use (Get the available models by ROOT__get_model_list_for_model())."
+            task_content:
+              type: "string"
+              description: "The prompt or instruction text for the task."
+            file_path:
+              type: "list"
+              description: "The absolute file path of the image or document to be processed."
+          required:
+            - "task_name"
+            - "model"
+            - "task_content"
+            # file_path 在 python 中是可选参数 (=None)，所以这里不放入 required，但通常 VLM 任务建议提供
+
+    add_llm_task_by_model:
+      type: function
+      function:
+        name: "ROOT__add_llm_task_by_model"
+        description: "Dispatch a text-only task to a specific LLM model and wait for the result."
+        parameters:
+          type: "object"
+          properties:
+            task_name:
+              type: "string"
+              description: "A unique identifier or name for this sub-task."
+            model:
+              type: "string"
+              description: "The name of the LLM model to use."
+            task_content:
+              type: "string"
+              description: "The prompt or instruction text for the task."
+          required:
+            - "task_name"
+            - "model"
+            - "task_content"

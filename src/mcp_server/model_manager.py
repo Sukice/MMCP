@@ -13,7 +13,6 @@ def init_model(model_name: str) -> Model:
     if model_name in _model_pool:
         return _model_pool[model_name]
 
-    # 根据你提供的 Model 定义，这里不需要传 api_key
     model = Model(name=model_name)
     _model_pool[model_name] = model
     print(f"已初始化模型: {model_name}")
