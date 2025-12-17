@@ -1,0 +1,155 @@
+filesystem:
+  name: "全功能文件系统"
+  desc: "提供完整的文件读写、搜索、编辑及目录管理能力"
+  dir_path: plugin_collection/filesystem/
+
+  functions:
+    read_text_file:
+      type: function
+      function:
+        name: "filesystem__read_text_file"
+        description: "读取文本文件的完整内容"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "文件路径"}
+          required: ["path"]
+
+    write_file:
+      type: function
+      function:
+        name: "filesystem__write_file"
+        description: "创建新文件或覆盖现有文件"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "目标文件路径"}
+            content: {type: "string", description: "要写入的内容"}
+          required: ["path", "content"]
+
+    read_media_file:
+      type: function
+      function:
+        name: "filesystem__read_media_file"
+        description: "读取图片或音频文件，返回Base64数据"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "文件路径"}
+          required: ["path"]
+
+    read_multiple_files:
+      type: function
+      function:
+        name: "filesystem__read_multiple_files"
+        description: "同时读取多个文件的内容"
+        parameters:
+          type: "object"
+          properties:
+            paths: {type: "list", description: "文件路径列表 (List[str])"}
+          required: ["paths"]
+
+    edit_file:
+      type: function
+      function:
+        name: "filesystem__edit_file"
+        description: "对文件进行智能补丁编辑（替换指定文本段）"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "文件路径"}
+            edits:
+              type: "list"
+              description: "编辑操作列表，每项需包含 oldText 和 newText"
+            dryRun: {type: "boolean", description: "是否仅预览修改而不应用"}
+          required: ["path", "edits"]
+
+    create_directory:
+      type: function
+      function:
+        name: "filesystem__create_directory"
+        description: "创建新目录（递归创建）"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "目录路径"}
+          required: ["path"]
+
+    list_directory:
+      type: function
+      function:
+        name: "filesystem__list_directory"
+        description: "列出目录下的文件和子目录"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "目录路径"}
+          required: ["path"]
+
+    list_directory_with_sizes:
+      type: function
+      function:
+        name: "filesystem__list_directory_with_sizes"
+        description: "列出目录内容及其大小统计"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "目录路径"}
+          required: ["path"]
+
+    move_file:
+      type: function
+      function:
+        name: "filesystem__move_file"
+        description: "移动或重命名文件/目录"
+        parameters:
+          type: "object"
+          properties:
+            source: {type: "string", description: "源路径"}
+            destination: {type: "string", description: "目标路径"}
+          required: ["source", "destination"]
+
+    directory_tree:
+      type: function
+      function:
+        name: "filesystem__directory_tree"
+        description: "获取目录的递归树状结构"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "根目录路径"}
+          required: ["path"]
+
+    search_files:
+      type: function
+      function:
+        name: "filesystem__search_files"
+        description: "递归搜索文件"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "起始目录"}
+            pattern: {type: "string", description: "搜索模式 (Glob)"}
+            excludePatterns: {type: "list", description: "排除模式列表"}
+          required: ["path", "pattern"]
+
+    get_file_info:
+      type: function
+      function:
+        name: "filesystem__get_file_info"
+        description: "获取文件或目录的详细元数据"
+        parameters:
+          type: "object"
+          properties:
+            path: {type: "string", description: "路径"}
+          required: ["path"]
+
+    list_allowed_directories:
+      type: function
+      function:
+        name: "filesystem__list_allowed_directories"
+        description: "列出当前允许访问的根目录列表"
+        parameters:
+          type: "object"
+          properties: {}
+          required: []
