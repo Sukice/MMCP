@@ -232,7 +232,7 @@ async def model_call(task: Task):
             model=task.model,
             messages=task.session_history,
             tools=task.get_tool_info() if task.get_tool_info() else None,
-            extra_body={"thinking": {"type": "enabled"}}
+
         )
         return response
     return None

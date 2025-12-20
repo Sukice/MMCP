@@ -3,6 +3,11 @@ import json
 import os
 import sys
 
+# ==========================================================
+# 🛡️ 安全配置：定义全局允许的根目录
+# 将其定义在模块级别，方便 wrapper.py 引用进行检查
+# ==========================================================
+ALLOWED_PATH = os.path.abspath(os.getcwd())
 
 class AsyncMCPBridge:
     def __init__(self, cmd):
@@ -44,7 +49,7 @@ class AsyncMCPBridge:
             await self._send_json({
                 "jsonrpc": "2.0", "method": "notifications/initialized"
             })
-            print("✅ [MCP] 握手完成")
+            print(f"✅ [MCP] 握手完成 (Root: {ALLOWED_PATH})")
         except Exception as e:
             if self.process: self.process.kill()
             self.process = None
@@ -81,13 +86,11 @@ class AsyncMCPBridge:
         result = resp.get("result", {})
         content = result.get("content", [])
 
-        # 增强解析：处理文本和图片/多媒体
         output_parts = []
         for item in content:
             if item.get("type") == "text":
                 output_parts.append(item.get("text", ""))
             elif item.get("type") in ["image", "resource"]:
-                # 对于图片或二进制，返回摘要信息或Base64片段
                 data = item.get("data", "") or item.get("blob", "")
                 mime = item.get("mimeType", "unknown")
                 output_parts.append(f"[Media: {mime}, size={len(data)} chars]")
@@ -103,10 +106,10 @@ _bridge_instance = None
 def get_bridge():
     global _bridge_instance
     if _bridge_instance is None:
-        allowed_path = os.path.abspath(os.getcwd())
+        # 使用全局定义的 ALLOWED_PATH
         is_windows = sys.platform.startswith('win')
         npx_cmd = "npx.cmd" if is_windows else "npx"
-        # 关键：加上 -y 自动安装，传入 allowed_path
-        cmd = [npx_cmd, "-y", "@modelcontextprotocol/server-filesystem", allowed_path]
+        # 启动 MCP Server 时传入绝对路径
+        cmd = [npx_cmd, "-y", "@modelcontextprotocol/server-filesystem", ALLOWED_PATH]
         _bridge_instance = AsyncMCPBridge(cmd)
     return _bridge_instance

@@ -92,9 +92,625 @@ mock:
           required:
           - location
           - date
+mmcp-playwright:
+  name: Playwright 全功能浏览器
+  desc: 基于官方 Playwright 协议的 Python 原生全功能实现。支持网页浏览、交互、抓包、视觉操作、PDF/截图落地、多标签页管理等。
+  dir_path: plugin_collection/mmcp-playwright/
+  functions:
+    browser_navigate:
+      type: function
+      function:
+        name: mmcp-playwright__browser_navigate
+        description: Visit a URL.
+        parameters:
+          type: object
+          properties:
+            url:
+              type: string
+          required:
+          - url
+    browser_navigate_back:
+      type: function
+      function:
+        name: mmcp-playwright__browser_navigate_back
+        description: Go back to previous page.
+        parameters:
+          type: object
+          properties: {}
+    browser_snapshot:
+      type: function
+      function:
+        name: mmcp-playwright__browser_snapshot
+        description: Get page content as Markdown (Structure).
+        parameters:
+          type: object
+          properties: {}
+    browser_take_screenshot:
+      type: function
+      function:
+        name: mmcp-playwright__browser_take_screenshot
+        description: Save screenshot to local file.
+        parameters:
+          type: object
+          properties:
+            file_path:
+              type: string
+              description: Relative path to save, e.g. 'screens/home.png'
+            full_page:
+              type: boolean
+          required:
+          - file_path
+    browser_click:
+      type: function
+      function:
+        name: mmcp-playwright__browser_click
+        description: Click element by selector.
+        parameters:
+          type: object
+          properties:
+            selector:
+              type: string
+          required:
+          - selector
+    browser_type:
+      type: function
+      function:
+        name: mmcp-playwright__browser_type
+        description: Type text into element.
+        parameters:
+          type: object
+          properties:
+            selector:
+              type: string
+            text:
+              type: string
+            submit:
+              type: boolean
+              description: Press Enter after typing?
+          required:
+          - selector
+          - text
+    browser_fill_form:
+      type: function
+      function:
+        name: mmcp-playwright__browser_fill_form
+        description: Fill multiple fields at once.
+        parameters:
+          type: object
+          properties:
+            fields:
+              type: array
+              items:
+                type: object
+                properties:
+                  selector:
+                    type: string
+                  value:
+                    type: string
+          required:
+          - fields
+    browser_evaluate:
+      type: function
+      function:
+        name: mmcp-playwright__browser_evaluate
+        description: Execute JS and return JSON result.
+        parameters:
+          type: object
+          properties:
+            script:
+              type: string
+          required:
+          - script
+    browser_network_requests:
+      type: function
+      function:
+        name: mmcp-playwright__browser_network_requests
+        description: Get recent network logs (API/XHR).
+        parameters:
+          type: object
+          properties:
+            include_static:
+              type: boolean
+          required: []
+    browser_wait_for:
+      type: function
+      function:
+        name: mmcp-playwright__browser_wait_for
+        description: Wait for element to appear.
+        parameters:
+          type: object
+          properties:
+            selector:
+              type: string
+            timeout:
+              type: integer
+          required:
+          - selector
+    browser_pdf_save:
+      type: function
+      function:
+        name: mmcp-playwright__browser_pdf_save
+        description: Save page as PDF locally.
+        parameters:
+          type: object
+          properties:
+            file_path:
+              type: string
+              description: e.g. 'docs/page.pdf'
+          required:
+          - file_path
+    browser_file_upload:
+      type: function
+      function:
+        name: mmcp-playwright__browser_file_upload
+        description: Upload a local file to a file input.
+        parameters:
+          type: object
+          properties:
+            selector:
+              type: string
+            file_path:
+              type: string
+              description: Path of file in downloads folder
+          required:
+          - selector
+          - file_path
+    browser_tabs:
+      type: function
+      function:
+        name: mmcp-playwright__browser_tabs
+        description: 'Manage tabs: list, create, switch, close.'
+        parameters:
+          type: object
+          properties:
+            action:
+              type: string
+              enum:
+              - list
+              - create
+              - switch
+              - close
+            index:
+              type: integer
+          required:
+          - action
+    browser_mouse_click_xy:
+      type: function
+      function:
+        name: mmcp-playwright__browser_mouse_click_xy
+        description: Click at coordinates.
+        parameters:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+          required:
+          - x
+          - y
+    browser_start_tracing:
+      type: function
+      function:
+        name: mmcp-playwright__browser_start_tracing
+        description: Start recording execution trace.
+        parameters:
+          type: object
+          properties: {}
+    browser_stop_tracing:
+      type: function
+      function:
+        name: mmcp-playwright__browser_stop_tracing
+        description: Stop recording and save trace file.
+        parameters:
+          type: object
+          properties:
+            file_path:
+              type: string
+              description: e.g. 'trace.zip'
+          required:
+          - file_path
+    browser_install:
+      type: function
+      function:
+        name: mmcp-playwright__browser_install
+        description: Install Playwright browsers.
+        parameters:
+          type: object
+          properties: {}
+mini_github:
+  name: GitHub 工具箱
+  desc: 提供 GitHub 仓库管理、Issue 追踪、PR 处理及代码搜索能力
+  dir_path: plugin_collection/mini_github/
+  functions:
+    search_repositories:
+      type: function
+      function:
+        name: mini_github__search_repositories
+        description: 搜索 GitHub 仓库
+        parameters:
+          type: object
+          properties:
+            query:
+              type: string
+              description: 搜索关键词
+          required:
+          - query
+    read_file:
+      type: function
+      function:
+        name: mini_github__read_file
+        description: 读取 GitHub 仓库中的文件内容
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名 (e.g. user/repo)
+            file_path:
+              type: string
+              description: 文件路径
+            branch:
+              type: string
+              description: 分支名 (默认 main)
+          required:
+          - repo_name
+          - file_path
+    create_or_update_file:
+      type: function
+      function:
+        name: mini_github__create_or_update_file
+        description: 创建或更新仓库文件
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            file_path:
+              type: string
+              description: 文件路径
+            content:
+              type: string
+              description: 文件内容
+            commit_message:
+              type: string
+              description: 提交信息
+            branch:
+              type: string
+              description: 分支名
+          required:
+          - repo_name
+          - file_path
+          - content
+          - commit_message
+    search_code:
+      type: function
+      function:
+        name: mini_github__search_code
+        description: 搜索代码
+        parameters:
+          type: object
+          properties:
+            query:
+              type: string
+              description: 代码关键词
+            repo_name:
+              type: string
+              description: 可选：限制在特定仓库内搜索
+          required:
+          - query
+    get_tree:
+      type: function
+      function:
+        name: mini_github__get_tree
+        description: 获取仓库文件树
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            branch:
+              type: string
+              description: 分支名
+            recursive:
+              type: boolean
+              description: 是否递归
+          required:
+          - repo_name
+    create_issue:
+      type: function
+      function:
+        name: mini_github__create_issue
+        description: 创建一个新的 Issue
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            title:
+              type: string
+              description: Issue 标题
+            body:
+              type: string
+              description: Issue 内容
+            labels:
+              type: list
+              description: 标签列表 (List[str])
+          required:
+          - repo_name
+          - title
+          - body
+    list_issues:
+      type: function
+      function:
+        name: mini_github__list_issues
+        description: 列出仓库的 Issue
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            state:
+              type: string
+              description: 状态 (open/closed/all)
+          required:
+          - repo_name
+    get_issue:
+      type: function
+      function:
+        name: mini_github__get_issue
+        description: 获取特定 Issue 的详情
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            issue_number:
+              type: integer
+              description: Issue 编号
+          required:
+          - repo_name
+          - issue_number
+    update_issue:
+      type: function
+      function:
+        name: mini_github__update_issue
+        description: 更新 Issue 状态或内容
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            issue_number:
+              type: integer
+              description: Issue 编号
+            state:
+              type: string
+              description: 新状态 (open/closed)
+            body:
+              type: string
+              description: 新内容
+          required:
+          - repo_name
+          - issue_number
+    add_issue_comment:
+      type: function
+      function:
+        name: mini_github__add_issue_comment
+        description: 评论 Issue
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            issue_number:
+              type: integer
+              description: Issue 编号
+            body:
+              type: string
+              description: 评论内容
+          required:
+          - repo_name
+          - issue_number
+          - body
+    create_pull_request:
+      type: function
+      function:
+        name: mini_github__create_pull_request
+        description: 创建 Pull Request
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            title:
+              type: string
+              description: PR 标题
+            body:
+              type: string
+              description: PR 内容
+            head:
+              type: string
+              description: 源分支
+            base:
+              type: string
+              description: 目标分支 (默认 main)
+          required:
+          - repo_name
+          - title
+          - body
+          - head
+    list_pull_requests:
+      type: function
+      function:
+        name: mini_github__list_pull_requests
+        description: 列出 PR
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            state:
+              type: string
+              description: 状态
+          required:
+          - repo_name
+    get_pull_request:
+      type: function
+      function:
+        name: mini_github__get_pull_request
+        description: 获取 PR 详情
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            pr_number:
+              type: integer
+              description: PR 编号
+          required:
+          - repo_name
+          - pr_number
+    merge_pull_request:
+      type: function
+      function:
+        name: mini_github__merge_pull_request
+        description: 合并 PR
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            pr_number:
+              type: integer
+              description: PR 编号
+            merge_method:
+              type: string
+              description: 合并方式 (merge/squash/rebase)
+          required:
+          - repo_name
+          - pr_number
+    create_branch:
+      type: function
+      function:
+        name: mini_github__create_branch
+        description: 创建新分支
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            new_branch:
+              type: string
+              description: 新分支名
+            source_branch:
+              type: string
+              description: 源分支名
+          required:
+          - repo_name
+          - new_branch
+    list_branches:
+      type: function
+      function:
+        name: mini_github__list_branches
+        description: 列出所有分支
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+          required:
+          - repo_name
+    list_commits:
+      type: function
+      function:
+        name: mini_github__list_commits
+        description: 查看提交历史
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            branch:
+              type: string
+              description: 分支名
+            limit:
+              type: integer
+              description: 数量限制
+          required:
+          - repo_name
+    get_commit:
+      type: function
+      function:
+        name: mini_github__get_commit
+        description: 查看提交详情
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+            sha:
+              type: string
+              description: 提交 SHA
+          required:
+          - repo_name
+          - sha
+    fork_repository:
+      type: function
+      function:
+        name: mini_github__fork_repository
+        description: Fork 仓库
+        parameters:
+          type: object
+          properties:
+            repo_name:
+              type: string
+              description: 仓库全名
+          required:
+          - repo_name
+    get_current_user:
+      type: function
+      function:
+        name: mini_github__get_current_user
+        description: 获取当前配置的 GitHub Token 所属的用户信息（我是谁？）
+        parameters:
+          type: object
+          properties: {}
+          required: []
+    list_user_repos:
+      type: function
+      function:
+        name: mini_github__list_user_repos
+        description: 列出当前用户拥有或有权限操作的仓库列表
+        parameters:
+          type: object
+          properties:
+            affiliation:
+              type: string
+              description: '筛选关系: ''owner'' (拥有的), ''collaborator'' (协作的), ''organization_member''
+                (组织的). 默认 ''owner,collaborator'''
+            limit:
+              type: integer
+              description: 返回数量限制 (默认 30)
+          required: []
 filesystem:
   name: 全功能文件系统
-  desc: 提供完整的文件读写、搜索、编辑及目录管理能力
+  desc: 提供完整的文件读写、搜索、编辑及目录管理能力。注意：所有路径参数必须使用绝对路径（Absolute Path）。
   dir_path: plugin_collection/filesystem/
   functions:
     read_text_file:
@@ -107,7 +723,7 @@ filesystem:
           properties:
             path:
               type: string
-              description: 文件路径
+              description: 文件的绝对路径 (Absolute Path)
           required:
           - path
     write_file:
@@ -120,7 +736,7 @@ filesystem:
           properties:
             path:
               type: string
-              description: 目标文件路径
+              description: 目标文件的绝对路径 (Absolute Path)
             content:
               type: string
               description: 要写入的内容
@@ -137,7 +753,7 @@ filesystem:
           properties:
             path:
               type: string
-              description: 文件路径
+              description: 文件的绝对路径 (Absolute Path)
           required:
           - path
     read_multiple_files:
@@ -149,8 +765,10 @@ filesystem:
           type: object
           properties:
             paths:
-              type: list
-              description: 文件路径列表 (List[str])
+              type: array
+              items:
+                type: string
+              description: 文件绝对路径列表 (List of Absolute Paths)
           required:
           - paths
     edit_file:
@@ -163,10 +781,22 @@ filesystem:
           properties:
             path:
               type: string
-              description: 文件路径
+              description: 文件的绝对路径 (Absolute Path)
             edits:
-              type: list
-              description: 编辑操作列表，每项需包含 oldText 和 newText
+              type: array
+              description: 编辑操作列表
+              items:
+                type: object
+                properties:
+                  oldText:
+                    type: string
+                    description: 被替换的旧文本
+                  newText:
+                    type: string
+                    description: 替换后的新文本
+                required:
+                - oldText
+                - newText
             dryRun:
               type: boolean
               description: 是否仅预览修改而不应用
@@ -183,7 +813,7 @@ filesystem:
           properties:
             path:
               type: string
-              description: 目录路径
+              description: 目录的绝对路径 (Absolute Path)
           required:
           - path
     list_directory:
@@ -196,7 +826,7 @@ filesystem:
           properties:
             path:
               type: string
-              description: 目录路径
+              description: 目录的绝对路径 (Absolute Path)
           required:
           - path
     list_directory_with_sizes:
@@ -209,7 +839,7 @@ filesystem:
           properties:
             path:
               type: string
-              description: 目录路径
+              description: 目录的绝对路径 (Absolute Path)
           required:
           - path
     move_file:
@@ -222,10 +852,10 @@ filesystem:
           properties:
             source:
               type: string
-              description: 源路径
+              description: 源文件的绝对路径 (Absolute Path)
             destination:
               type: string
-              description: 目标路径
+              description: 目标位置的绝对路径 (Absolute Path)
           required:
           - source
           - destination
@@ -239,7 +869,7 @@ filesystem:
           properties:
             path:
               type: string
-              description: 根目录路径
+              description: 根目录的绝对路径 (Absolute Path)
           required:
           - path
     search_files:
@@ -252,12 +882,14 @@ filesystem:
           properties:
             path:
               type: string
-              description: 起始目录
+              description: 起始搜索目录的绝对路径 (Absolute Path)
             pattern:
               type: string
-              description: 搜索模式 (Glob)
+              description: 搜索模式 (Glob Pattern)
             excludePatterns:
-              type: list
+              type: array
+              items:
+                type: string
               description: 排除模式列表
           required:
           - path
@@ -272,14 +904,14 @@ filesystem:
           properties:
             path:
               type: string
-              description: 路径
+              description: 文件或目录的绝对路径 (Absolute Path)
           required:
           - path
     list_allowed_directories:
       type: function
       function:
         name: filesystem__list_allowed_directories
-        description: 列出当前允许访问的根目录列表
+        description: 列出当前允许访问的根目录列表（绝对路径）。在开始操作前请先调用此工具获取基准路径。
         parameters:
           type: object
           properties: {}

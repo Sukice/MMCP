@@ -15,6 +15,11 @@ def init_task(task: Task) -> None:
     task.task_id = generate_task_id()
     task.create_time = datetime_to_str(get_current_datetime())
 
+    task.session_history.append({
+        "role": "system",
+        "content": f"Your name is {task.model}. If you are provided tools, you should use tool until you know the final answer."
+    })
+
     if task.file_path and len(task.file_path) > 0:
         content_list = []
 

@@ -2,7 +2,7 @@ import os
 import json
 
 # 任务核心配置
-MAX_COUNT = 20
+MAX_COUNT = 50
 SESSION_MAX_SIZE = 50
 MAX_HANDLING_TASKS = 4
 TASK_HISTORY_FILE = "task_history.json"

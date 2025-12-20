@@ -1,6 +1,6 @@
 filesystem:
   name: "全功能文件系统"
-  desc: "提供完整的文件读写、搜索、编辑及目录管理能力"
+  desc: "提供完整的文件读写、搜索、编辑及目录管理能力。注意：所有路径参数必须使用绝对路径（Absolute Path）。"
   dir_path: plugin_collection/filesystem/
 
   functions:
@@ -12,7 +12,9 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "文件路径"}
+            path:
+              type: "string"
+              description: "文件的绝对路径 (Absolute Path)"
           required: ["path"]
 
     write_file:
@@ -23,8 +25,12 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "目标文件路径"}
-            content: {type: "string", description: "要写入的内容"}
+            path:
+              type: "string"
+              description: "目标文件的绝对路径 (Absolute Path)"
+            content:
+              type: "string"
+              description: "要写入的内容"
           required: ["path", "content"]
 
     read_media_file:
@@ -35,7 +41,9 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "文件路径"}
+            path:
+              type: "string"
+              description: "文件的绝对路径 (Absolute Path)"
           required: ["path"]
 
     read_multiple_files:
@@ -46,7 +54,11 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            paths: {type: "list", description: "文件路径列表 (List[str])"}
+            paths:
+              type: "array"
+              items:
+                type: "string"
+              description: "文件绝对路径列表 (List of Absolute Paths)"
           required: ["paths"]
 
     edit_file:
@@ -57,10 +69,18 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "文件路径"}
+            path:
+              type: "string"
+              description: "文件的绝对路径 (Absolute Path)"
             edits:
-              type: "list"
-              description: "编辑操作列表，每项需包含 oldText 和 newText"
+              type: "array"
+              description: "编辑操作列表"
+              items:
+                type: "object"
+                properties:
+                  oldText: {type: "string", description: "被替换的旧文本"}
+                  newText: {type: "string", description: "替换后的新文本"}
+                required: ["oldText", "newText"]
             dryRun: {type: "boolean", description: "是否仅预览修改而不应用"}
           required: ["path", "edits"]
 
@@ -72,7 +92,9 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "目录路径"}
+            path:
+              type: "string"
+              description: "目录的绝对路径 (Absolute Path)"
           required: ["path"]
 
     list_directory:
@@ -83,7 +105,9 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "目录路径"}
+            path:
+              type: "string"
+              description: "目录的绝对路径 (Absolute Path)"
           required: ["path"]
 
     list_directory_with_sizes:
@@ -94,7 +118,9 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "目录路径"}
+            path:
+              type: "string"
+              description: "目录的绝对路径 (Absolute Path)"
           required: ["path"]
 
     move_file:
@@ -105,8 +131,12 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            source: {type: "string", description: "源路径"}
-            destination: {type: "string", description: "目标路径"}
+            source:
+              type: "string"
+              description: "源文件的绝对路径 (Absolute Path)"
+            destination:
+              type: "string"
+              description: "目标位置的绝对路径 (Absolute Path)"
           required: ["source", "destination"]
 
     directory_tree:
@@ -117,7 +147,9 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "根目录路径"}
+            path:
+              type: "string"
+              description: "根目录的绝对路径 (Absolute Path)"
           required: ["path"]
 
     search_files:
@@ -128,9 +160,17 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "起始目录"}
-            pattern: {type: "string", description: "搜索模式 (Glob)"}
-            excludePatterns: {type: "list", description: "排除模式列表"}
+            path:
+              type: "string"
+              description: "起始搜索目录的绝对路径 (Absolute Path)"
+            pattern:
+              type: "string"
+              description: "搜索模式 (Glob Pattern)"
+            excludePatterns:
+              type: "array"
+              items:
+                type: "string"
+              description: "排除模式列表"
           required: ["path", "pattern"]
 
     get_file_info:
@@ -141,14 +181,16 @@ filesystem:
         parameters:
           type: "object"
           properties:
-            path: {type: "string", description: "路径"}
+            path:
+              type: "string"
+              description: "文件或目录的绝对路径 (Absolute Path)"
           required: ["path"]
 
     list_allowed_directories:
       type: function
       function:
         name: "filesystem__list_allowed_directories"
-        description: "列出当前允许访问的根目录列表"
+        description: "列出当前允许访问的根目录列表（绝对路径）。在开始操作前请先调用此工具获取基准路径。"
         parameters:
           type: "object"
           properties: {}

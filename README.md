@@ -71,7 +71,7 @@ python -m src.user.web.server
 
 > **在这里你可以：**
 >
->   * 在“模型池”直接添加你的 DeepSeek / OpenAI API Key。
+>   * 在“模型池”直接添加你的 AI 模型。
 >   * 拖拽上传 `.zip` 格式的插件包。
 >   * 像聊天一样发布任务，并围观 AI 干活。
 
@@ -110,7 +110,7 @@ python -m src.user.web.server
         add_task(
             model="deepseek-chat", 
             task_name="get_time", 
-            available_tools=["base_tools/get_current_time"], 
+            available_tools=["mock/get_current_time"], 
             task_content="现在几点了？"
         )
         
@@ -118,7 +118,7 @@ python -m src.user.web.server
         add_task(
             model="deepseek-chat", 
             task_name="get_weather", 
-            available_tools=["base_tools/get_weather", "base_tools/get_current_time"], 
+            available_tools=["mock"], 
             task_content="帮我查查今天广州的天气怎么样？"
         )
 
