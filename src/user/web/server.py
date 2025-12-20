@@ -67,6 +67,7 @@ class AddModelRequest(BaseModel):
     model_name: str
     base_url: str
     api_key: str
+    model_type: str = "LLM"
 
 
 @app.get("/")
@@ -86,7 +87,7 @@ def get_dashboard_data():
     for t in pending: t['status_display'] = 'Waiting'
     for t in handling: t['status_display'] = 'Handling'
 
-    models = [{"name": m.name, "state": m.state, "task_id": m.task_id, "task_name": m.task_name} for m in list_models()]
+    models = [{"name": m.name,"type": m.model_type, "state": m.state, "task_id": m.task_id, "task_name": m.task_name} for m in list_models()]
     tools = [t.to_dict() for t in _executing_tool_list]
 
     return {"tasks": handling + pending, "models": models, "tools": tools}
@@ -149,7 +150,8 @@ def api_add_model(req: AddModelRequest):
     if not req.model_name or not req.base_url or not req.api_key:
         raise HTTPException(status_code=400, detail="所有字段均为必填项")
 
-    success = save_model_config(req.model_name, req.base_url, req.api_key)
+    # [修改] 传入 model_type
+    success = save_model_config(req.model_name, req.base_url, req.api_key, req.model_type)
     if not success:
         raise HTTPException(status_code=500, detail="保存配置失败")
 

@@ -23,17 +23,18 @@ def load_model_config():
 
 # 初始化全局变量
 _config_data = load_model_config()
-DEFAULT_MODELS = _config_data["models"]
-API_KEYS = _config_data["api_keys"]
-BASE_URL = _config_data["base_urls"]
-
+DEFAULT_MODELS = _config_data.get("models", [])
+API_KEYS = _config_data.get("api_keys", {})
+BASE_URL = _config_data.get("base_urls", {})
+MODEL_TYPES = _config_data.get("model_types", {})
 
 def _save_to_file():
     """内部辅助函数：保存当前内存配置到文件"""
     data_to_save = {
         "models": DEFAULT_MODELS,
         "api_keys": API_KEYS,
-        "base_urls": BASE_URL
+        "base_urls": BASE_URL,
+        "model_types": MODEL_TYPES
     }
     try:
         with open(MODELS_CONFIG_FILE, "w", encoding="utf-8") as f:
@@ -44,26 +45,29 @@ def _save_to_file():
         return False
 
 
-def save_model_config(name: str, base_url: str, api_key: str):
+def save_model_config(name: str, base_url: str, api_key: str, model_type: str = "LLM"):
     """添加/更新模型配置"""
     if name not in DEFAULT_MODELS:
         DEFAULT_MODELS.append(name)
     API_KEYS[name] = api_key
     BASE_URL[name] = base_url
+    MODEL_TYPES[name] = model_type
     return _save_to_file()
 
-
 def delete_model_config(name: str):
-    """[新增] 删除模型配置"""
+    """删除模型配置"""
     if name in DEFAULT_MODELS:
         DEFAULT_MODELS.remove(name)
 
-    # 移除字典中的键（如果存在）
     API_KEYS.pop(name, None)
     BASE_URL.pop(name, None)
+    MODEL_TYPES.pop(name, None)
 
     print(f"模型 {name} 已从配置中移除")
     return _save_to_file()
+
+def get_model_type(model_name: str) -> str:
+    return MODEL_TYPES.get(model_name, "LLM")
 
 
 def get_api_key(model_name: str) -> str:

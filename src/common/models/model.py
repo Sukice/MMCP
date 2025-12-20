@@ -3,10 +3,11 @@ from typing import Optional
 
 class Model:
     VALID_STATES = ("idle", "think", "wait")
-
+    VALID_TYPES = ("LLM", "VLM")
     def __init__(
         self,
         name: str,
+        model_type: str = "LLM",
         state: str = "idle",
         task_name: Optional[str] = None,
         task_id: Optional[str] = None
@@ -14,7 +15,9 @@ class Model:
         if not name.strip():
             raise ValueError("模型名（name）不能为空")
         self.name = name.strip()
-
+        if model_type not in self.VALID_TYPES:
+            raise ValueError(f"模型类型必须是 {self.VALID_TYPES} 中的一种，当前值：{model_type}")
+        self.model_type = model_type
         self._state = None
         self.state = state
 
@@ -43,6 +46,6 @@ class Model:
 
     def __repr__(self) -> str:
         return (
-            f"Model(name={self.name!r}, state={self.state!r}, "
+            f"Model(name={self.name!r}, model_type={self.type!r}, state={self.state!r}, "
             f"task_id={self.task_id!r})"
         )

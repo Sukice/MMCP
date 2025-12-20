@@ -1,7 +1,7 @@
 from typing import Dict, Optional, List
 from src.common.models import Model
 from src.config.settings import DEFAULT_MODELS
-
+from src.config.settings import DEFAULT_MODELS, get_model_type
 # 全局模型池
 # Key: 模型名称 (str), Value: Model 对象
 _model_pool: Dict[str, Model] = {}
@@ -9,13 +9,13 @@ _model_pool: Dict[str, Model] = {}
 
 def init_model(model_name: str) -> Model:
     """动态添加/初始化单个模型到内存池"""
-    # 如果已存在，直接返回，避免重置状态
     if model_name in _model_pool:
         return _model_pool[model_name]
+    m_type = get_model_type(model_name)
+    model = Model(name=model_name, model_type=m_type)
 
-    model = Model(name=model_name)
     _model_pool[model_name] = model
-    print(f"已初始化模型: {model_name}")
+    print(f"已初始化模型: {model_name} ({m_type})")
     return model
 
 

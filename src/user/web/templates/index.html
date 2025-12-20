@@ -157,8 +157,31 @@
                     <div class="panel-header"><span>模型池</span><el-button type="primary" circle size="small" @click.stop="addModelVisible = true" style="box-shadow: 0 2px 6px rgba(64, 158, 255, 0.3);"><el-icon><Plus /></el-icon></el-button></div>
                     <div class="scrollable-content">
                         <div v-for="m in modelList" :key="m.name" class="model-item-wrapper" @click.stop="toggleModelSlide(m.name)">
-                            <div class="model-content" :class="{ 'is-slid': openedModel === m.name }">
-                                <div style="display:flex; justify-content:space-between;"><span style="font-weight: 600;">{{m.name}}</span><el-tag size="small" :type="m.state === 'idle' ? 'info' : 'warning'" effect="dark" round>{{m.state}}</el-tag></div>
+                            <div class="model-content" :class="{ 'is-slid': openedModel === m.name }" style="display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-weight: 600;">{{m.name}}</span>
+                                        <el-tag size="small" effect="plain"
+                                                style="height: 18px; line-height: 16px; font-size: 10px; padding: 0 4px;"
+                                                :type="m.type === 'VLM' ? 'warning' : ''">
+                                            {{ m.type }}
+                                        </el-tag>
+                                    </div>
+                                    <el-tag size="small" :type="m.state === 'idle' ? 'info' : 'success'" effect="dark" round style="transform: scale(0.9);">
+                                        {{m.state}}
+                                    </el-tag>
+                                </div>
+
+                                <div style="font-size: 11px; color: #909399; display: flex; align-items: center;">
+                                    <span v-if="m.state !== 'idle' && m.task_name" style="color: #67C23A; display: flex; align-items: center;">
+                                        <el-icon class="is-loading" style="margin-right: 4px;" v-if="m.state === 'think'"><Loading /></el-icon>
+                                        <el-icon style="margin-right: 4px;" v-else><Video-Play /></el-icon>
+                                        正在执行: {{ truncate(m.task_name, 16) }}
+                                    </span>
+                                    <span v-else style="display: flex; align-items: center;">
+                                        <el-icon style="margin-right: 4px;"><Moon /></el-icon> 空闲
+                                    </span>
+                                </div>
                             </div>
                             <div class="model-delete-btn" @click.stop="deleteModel(m.name)"><el-icon size="20"><Close /></el-icon></div>
                         </div>
@@ -247,6 +270,14 @@
         <el-dialog v-model="addModelVisible" title="添加新模型" width="450px" align-center style="border-radius: 12px;">
             <el-form :model="newModel" label-position="top">
                 <el-form-item label="模型名称 (Model Name)" required><el-input v-model="newModel.model_name" placeholder="e.g. gpt-4o"></el-input></el-form-item>
+
+                <el-form-item label="模型类型 (Type)" required>
+                    <el-select v-model="newModel.model_type" placeholder="选择模型类型" style="width: 100%">
+                        <el-option label="LLM" value="LLM"></el-option>
+                        <el-option label="VLM" value="VLM"></el-option>
+                    </el-select>
+                </el-form-item>
+
                 <el-form-item label="Base URL" required><el-input v-model="newModel.base_url" placeholder="e.g. https://api.openai.com/v1"></el-input></el-form-item>
                 <el-form-item label="API Key" required><el-input v-model="newModel.api_key" show-password placeholder="sk-..."></el-input></el-form-item>
             </el-form>
@@ -315,7 +346,7 @@
                 const newTask = ref({ name: "", content: "", tools: [], model: "", file_paths: [] });
                 const toolSelection = ref({});
                 const addModelVisible = ref(false);
-                const newModel = ref({ model_name: "", base_url: "", api_key: "" });
+                const newModel = ref({ model_name: "", base_url: "", api_key: "", model_type: "LLM"});
                 const openedModel = ref(null);
 
                 const attachmentList = ref([]);
@@ -438,7 +469,7 @@
                     } catch(e) { ElMessage.error("失败: " + e.message); }
                 };
 
-                const submitNewModel = async () => { const name = newModel.value.model_name; if(!name || !newModel.value.base_url || !newModel.value.api_key) { ElMessage.warning("所有字段均为必填项"); return; } const exists = modelList.value.some(m => m.name === name); if (exists) { ElMessage.warning(`模型 "${name}" 已存在，无需重复添加`); return; } try { await axios.post('/api/models', newModel.value); ElMessage.success(`模型 ${name} 已添加`); addModelVisible.value = false; newModel.value = { model_name: "", base_url: "", api_key: "" }; fetchData(); } catch(e) { ElMessage.error("添加失败: " + (e.response?.data?.detail || e.message)); } };
+                const submitNewModel = async () => { const name = newModel.value.model_name; if(!name || !newModel.value.base_url || !newModel.value.api_key) { ElMessage.warning("所有字段均为必填项"); return; } const exists = modelList.value.some(m => m.name === name); if (exists) { ElMessage.warning(`模型 "${name}" 已存在，无需重复添加`); return; } try { await axios.post('/api/models', newModel.value); ElMessage.success(`模型 ${name} 已添加`); addModelVisible.value = false; newModel.value = { model_name: "", base_url: "", api_key: "", model_type:"LLM" }; fetchData(); } catch(e) { ElMessage.error("添加失败: " + (e.response?.data?.detail || e.message)); } };
                 const toggleModelSlide = (name) => { if (openedModel.value === name) openedModel.value = null; else openedModel.value = name; };
                 const handleGlobalClick = () => { if (openedModel.value) openedModel.value = null; };
                 const deleteModel = async (name) => { try { await axios.delete(`/api/models/${encodeURIComponent(name)}`); ElMessage.success(`模型 ${name} 已删除`); openedModel.value = null; fetchData(); } catch(e) { ElMessage.error("删除失败"); } };

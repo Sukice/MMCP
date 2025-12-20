@@ -214,10 +214,22 @@ async def execute_task(task: Task) -> None:
 
     finally:
         remove_handling_task(task)
-        add_model_task_result(task.task_name,task.session_history[-1]['content'])
+        last_result = "No result"
+        if task.session_history and len(task.session_history) > 0:
+            last_msg = task.session_history[-1]
+            last_result = last_msg.get('content', '')
+        add_model_task_result(task.task_name, last_result)
         update_model_state(task.model, "idle")
         unbind_model_task(task.model)
-        write_task_history(task)
+        history_data = {
+            "task_id": task.task_id,
+            "task_name": task.task_name,
+            "task_result": last_result,
+            "create_time": task.create_time,
+            "finish_time": task.finish_time,
+            "model_name": task.model
+        }
+        write_task_history(history_data)
 
 
 
